@@ -2,7 +2,7 @@
 
 <?php
 
-
+date_default_timezone_set ("America/Vancouver");
 session_start();
 
 require("headers/security_header.php");
@@ -14,7 +14,10 @@ require("headers/showlib.php");
 require('adLib.php');
 
 echo '<html><head><meta name=ROBOTS content="NOINDEX, NOFOLLOW">';
-echo "<link rel=stylesheet href='css/style.css' type='text/css' />";
+echo "<link rel=stylesheet href='citr.css' type='text/css' />";
+
+
+//printf("<title>CiTR 101.9</title></head><body>");
 
 ?>
 
@@ -50,12 +53,7 @@ print_menu();
 
 //$adLib->sayHello();
 $showlib = new Showlib($db);
-
-if($using_sam){
-	$adLib = new AdLib($mysqli_sam,$db);
-} else {
-	$adLib = new AdLib(false, $db );
-}
+$adLib = new AdLib($mysqli_sam,$db, $showlib);
 
 echo '<h1>ad scheduler';
 echo '</h1>';
@@ -84,46 +82,42 @@ echo '<p>"Ad" button template:</p>'.
 	 '</div>';
 
 $showBlocks = $showlib->getAllCurrentShowBlocks();
-
 $lastSunday = strtotime("last Sunday");
-	
+$lastSunday += 3600; //Daylightsavings
+//echo $lastSunday;
+
+//$timezone = -5; //(gmt -5:00) EST (us & Canada)
+//echo gmdate("Y/m/j/H:I:S", time()+ 3600*($timezone+date("I)));
 //for($i=0; $i<105; $i++){	
 //	$block = $showBlocks[$i];
 		
 foreach ( $showBlocks as $i => $block ) {
-//		echo '<pre>';
-//		print_r($block);
-//		echo '</pre>';
+
 		
 		$startTime = $block['start_time'];
 		$endTime = $block['end_time'];
 
 		$thisShow = $showlib->getShowByID($block['show_id']);
 		$uniqueTime = $showBlocks[$i][wdt] + $lastSunday;
-
-//		echo '<pre> info for id'.$block['show_id'].'<br/>';
-//		print_r($thisShow);
-//		echo '</pre>';
 				
 		echo '<br/>';
 		echo '<h3>'.$thisShow->name.'</h3>';
 		echo date ( 'D, M j, g:ia', $uniqueTime);
 
-		$duration = $block['duration'];//showBlock::getShowBlockLength($showBlocks[$i]);
+		$duration = showBlock::getShowBlockLength($showBlocks[$i]);
 
 		echo '<br/>show duration: '.$duration.' hr(s)<br/>';
 //		echo 'starts at '.$showBlocks[$i]['start_time'].'</br/>';
 
 		echo '<div class="adSelectGroup" id="'.$uniqueTime.'" name="'.$thisShow->name.'">';
 		
-		echo $adLib->generateTable($uniqueTime,'prog', $block);
+		echo $adLib->generateTable($uniqueTime,'prog', $thisShow);
 		echo '</div>';
 		
 }
 
-if($using_sam){
-	$mysqli_sam->close();
-}
+
+$mysqli_sam->close();
 
 $db->close();
 

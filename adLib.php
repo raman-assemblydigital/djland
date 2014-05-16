@@ -2,7 +2,6 @@
 
 require_once('headers/showlib.php');
 date_default_timezone_set ("America/Vancouver");
-
 class AdLib {
 	private $sam_link; // mysql link identifier
 	private $citr_link;
@@ -11,17 +10,9 @@ class AdLib {
 	public $ad_dict;
 	private $showlib;
 	private $availableAds;
-	private $recent_ad_rows;
-
-
-	private $using_sam;
 	function __construct($samLink, $citrLink) {
-		if($samLink){
-			$this->sam_link = $samLink;
-			$this->using_sam = true;
-		} else {
-			$this->using_sam = false;
-		}
+
+		$this->sam_link = $samLink;
 		$this->citr_link = $citrLink;
 		$this->curr_time = time();
 		$this->ad_dict = 	array(
@@ -33,34 +24,9 @@ class AdLib {
 		$this->showlib = new Showlib($this->citr_link);
 		$this->availableAds = $this->loadAvailableAds();
 //		$this->show_lib = new ShowLib
-
-		// load ads from one month ago and one month in future into object memory to save on queries later
-
-		$this->recent_ad_rows = array();
-
-		$onemonth = 30*24*60*60;
-//		$onemonth = 5*24*60*60;
-
-		$recent_minimum = $this->curr_time - $onemonth;
-		$recent_maximum = $this->curr_time + $onemonth;
-
-//		echo 'max:'.$recent_maximum.' min:'.$recent_minimum;
-		$load_query = "SELECT id, time, type, name, time_block FROM adlog WHERE time_block >= '".$recent_minimum."' AND time_block <= '".$recent_maximum."'";
-//		echo 'query: '.$load_query;
-		if($result_loading = mysqli_query($this->citr_link, $load_query)){
-
-			while($loady = $result_loading->fetch_array()){
-				$this->recent_ad_rows []= $loady;
-			}
-		} else {
-
-			echo 'no worky';
-		}
+		
 	}
 	
-	function giveRecentRows(){
-		return $this->recent_ad_rows;
-	}
 	
 	function sayHello(){
 		echo 'hello';
@@ -73,77 +39,40 @@ class AdLib {
 		$adIDnums = array();		
 		$adNames = array();
 		$dbIDnums = array();
-
-		$results_from_recent = array();
-		
-		foreach ($this->recent_ad_rows as $index => $ad_row) {
-		//	echo 'recentadrow:';
-		//	print_r($this->recent_ad_rows);
-			if($ad_row['time_block'] == $unixTime){
-		//		echo 'was equal<br/>';
-				$results_from_recent []= $ad_row;
-
-
-				//	print_r($ad);
-						$adTimes []= $ad_row['time'];
-						$adTypes []= $ad_row['type'];
-						$dbIDnums []= $ad_row['id'];
-						if (is_numeric($ad_row['name']) && $ad_row['name']!=0 ){
-						//	echo 'is numeric: '.$ad['name'];
-							$adNames []= $this->getAdNameFromID($ad_row['name']);
-							$adIDnums []= $ad_row['name'];
-						} else {
-							$adNames []= $ad_row['name'];
-							$adIDnums []= 0;
-						}
-
-			} else {
-	//			echo '<hr/>not equal: '.$ad_row['time_block'].'<br/>';
-	//			echo '$unixTime:'.$unixTime;
-
-			}
-		}
-
-		if( empty($results_from_recent) ){
-		//	echo 'WAS EMPTY';
-		
-
-					
-				$load_query = "SELECT id, time, type, name FROM adlog WHERE time_block = '".$unixTime."'";
 				
-				if ($result_load = mysqli_query($this->citr_link,$load_query)){
-					while($ad = $result_load->fetch_array()){
-				//	print_r($ad);
-						$adTimes []= $ad['time'];
-						$adTypes []= $ad['type'];
-						$dbIDnums []= $ad['id'];
-						if (is_numeric($ad['name']) && $ad['name']!=0 ){
-						//	echo 'is numeric: '.$ad['name'];
-							$adNames []= $this->getAdNameFromID($ad['name']);
-							$adIDnums []= $ad['name'];
-						} else {
-							$adNames []= $ad['name'];
-							$adIDnums []= 0;
-						}
-						
-		//				$adIDAndName []= array('89',false) ;
-					//	if (is_numeric($ad['name']) ){
-					//		$adNames[$i-1] = getAdNameFromID($ad['name']);
-					//	} else {
-					//		$adNames[$i-1] = 'not an ad';
-					//	}
-					}
-					
-					if( mysqli_num_rows ( $result_load ) == 0 ) {
-						return false;
-					}
-					
+		$load_query = "SELECT id, time, type, name FROM adlog WHERE time_block = '".$unixTime."'";
+		
+		if ($result_load = mysqli_query($this->citr_link,$load_query)){
+			while($ad = $result_load->fetch_array()){
+		//	print_r($ad);
+				$adTimes []= $ad['time'];
+				$adTypes []= $ad['type'];
+				$dbIDnums []= $ad['id'];
+				if (is_numeric($ad['name']) && $ad['name']!=0 ){
+				//	echo 'is numeric: '.$ad['name'];
+					$adNames []= $this->getAdNameFromID($ad['name']);
+					$adIDnums []= $ad['name'];
 				} else {
-					return false;
+					$adNames []= $ad['name'];
+					$adIDnums []= 0;
 				}
-			} else {
-
+				
+//				$adIDAndName []= array('89',false) ;
+			//	if (is_numeric($ad['name']) ){
+			//		$adNames[$i-1] = getAdNameFromID($ad['name']);
+			//	} else {
+			//		$adNames[$i-1] = 'not an ad';
+			//	}
 			}
+			
+			if( mysqli_num_rows ( $result_load ) == 0 ) {
+				return false;
+			}
+			
+		} else {
+			return false;
+		}
+	
 		$returny = array($adTimes,$adTypes,$adIDnums,$adNames, $dbIDnums);
 		return $returny;	
 		
@@ -153,20 +82,17 @@ class AdLib {
 // LOADS ADS FROM DATABASE IF THEY HAVE BEEN SCHEDULED
 
 	function getAdNameFromID($id){
-//		echo 'looking for id '.$id;
 
-		if($this->using_sam){
+		$ad_q = "SELECT artist, title FROM songlist WHERE ID = '".$id."'";
+		if( $result = mysqli_query($this->sam_link,$ad_q)){
+			$ad = $result->fetch_array();
+			if (is_array($ad)) {
+			//	echo 'loaded an ad name: '.$ad['artist'].' - '.$ad['title'];
+			return $ad['artist'].' - '.$ad['title'];
+			} else { return false; }
+		}
+		else return false;
 
-			$ad_q = "SELECT artist, title FROM songlist WHERE ID = '".$id."'";
-			if( $result = mysqli_query($this->sam_link,$ad_q)){
-				$ad = $result->fetch_array();
-				if (is_array($ad)) {
-				//	echo 'loaded an ad name: '.$ad['artist'].' - '.$ad['title'];
-				return $ad['artist'].' - '.$ad['title'];
-				} else { return false; }
-			}
-			else return false;
-		} else return false;
 	}
 	
 	
@@ -179,7 +105,7 @@ class AdLib {
 		
 	}
 	function howManySlots($showBlock){
-
+		
 		$dur = showBlock::getShowBlockLength($showBlock);
 		$start = $showBlock['start_time'];
 		$start_dec_a = explode(':',$start);
@@ -188,7 +114,6 @@ class AdLib {
 		
 		$slots = ($dur*4.0)+$numTopHour;
 				
-
 		return $slots;
 		
 	}
@@ -203,6 +128,7 @@ class AdLib {
 
 		//$showlib = new ShowLib($this->citr_link);
 		$num_slots = $this->howManySlots($showBlock);
+
 
 		$start = substr($showBlock['start_time'],0,-3);
 		$startD = new DateTime($start);
@@ -400,7 +326,6 @@ class AdLib {
 				}
 			
 			}	
-
 			return $strings;
 		
 						/* this code will let the user select an ad type (IN DEVELOPMENT)
@@ -414,11 +339,14 @@ class AdLib {
 	}
 	
 	
-	function generateTable($unixTime,$view, $blockOverride){
+	function generateTable($unixTime,$view){
 		
-
+$log_me = date('D, d M Y g:i:s a');
+$log_me .= ' | generating a table (unixTime:'.$unixTime.')<hr/>';//- POST: '.print_r($_POST,true).'<br>FILES:'.print_r($_FILES, true).
+file_put_contents ( 'logs/log.html' , $log_me , FILE_APPEND );
+		
 		if( $ad_array = $this->loadAdRows($unixTime)   ){
-//			echo '<hr>loading rows - unix: '.$unixTime.'<hr>';
+		//	echo '<hr>loading rows - unix: '.$unixTime.'<hr>';
 			$times = $ad_array[0];
 			$types = $ad_array[1];
 			$adIDnums = $ad_array[2];
@@ -426,19 +354,11 @@ class AdLib {
 			$dbIDnums = $ad_array[4];
 		} else  if($view == 'prog'){
 		
-//			echo '<hr>generating the rows - unix: '.$unixTime.'<hr>';
+		//	echo '<hr>generating the rows - unix: '.$unixTime.'<hr>';
 			
 		$theShow = $this->showlib->getShowByTime($unixTime);
-
-		if(!$blockOverride){
-				$showBlock = $theShow->times[0];
-		} else {
-			$showBlock = $blockOverride;
-		}
-/*		echo '<hr><pre>SHOWBYTIME from GENTABLE';
-		print_r($showBlock);
-		echo '</pre><hr>';
-*/		
+		$showBlock = $theShow->times[0];
+		
 //				print_r($showBlock);
 
 		$table = '';
@@ -460,18 +380,18 @@ class AdLib {
 		}
 		
 		
+
 		$times_types = $this->getTimeAndTypeListForShow($showBlock, $sponsorName);
 		$times = $times_types[0];
 		$types = $times_types[1];
 		
-
 		$names = $this->getNames($types, $unixTime, $sponsorName);
 		
 //		$names = false;
 		$adIDnums = false;
 		}else return "<br/>no ad's have been scheduled! <br/>mention station IDs at the top of every hour!";
 		
-		$table .= $this->getHTML($view,$times,$types,$names,$adIDnums, $dbIDnums, false);
+		$table .= $this->getHTML($view,$times,$types,$names,$adIDnums, $dbIDnums);
 		return $table;
 		
 	} 
@@ -494,8 +414,7 @@ class AdLib {
 			$samIDs = array();
 			$db_ids = array();
 			$playeds = array();
-		
-		if(empty($adTable)) return '<br/><br/>no ads were found';
+			
 			foreach( $adTable as $i => $row ){
 	//			print_r($row);
 				$times []= $row['time'];
@@ -519,9 +438,6 @@ class AdLib {
 	}
 	
 	function generateAdSelector($ad_id = false,$ad_name = false){
-
-		if($this->using_sam){
-
 		$string = '<select id="name'.$p.'" class="selectanad">';
 		
 				if($ad_name&&$ad_id){ // only ad_name will be something if it's a blank ad slot
@@ -530,7 +446,7 @@ class AdLib {
 					$string .= '<option value="0">select an AD</option>';
 				}	// whether there are ads or not, we need an option
 					// to select scheduling no ad.
-					$string .= '<option value="no ad"> -- </option>';
+					$string .= '<option value="noad"> -- </option>';
 					
 					foreach($this->availableAds as $i => $ad){
 						$string .= '<option value="'.$ad['id'].'">'.$ad['artist'].' - '.$ad['title'].'</option>';
@@ -538,10 +454,6 @@ class AdLib {
 				$string .= '</select>';
 				
 				return $string;
-		} else {
-			return '<input class=selectanad></input>';
-		}
-
 	}
 	
 
@@ -550,7 +462,7 @@ class AdLib {
 		
 		$addys = array();
 			
-		if ($this->using_sam && $result_sam = mysqli_query($this->sam_link,"SELECT id, artist, title FROM songlist WHERE songtype = 'A' ")) 
+		if ($result_sam = mysqli_query($this->sam_link,"SELECT id, artist, title FROM songlist WHERE songtype = 'A' ")) 
 		{		
 		//	echo 'loadAvailableAds succeeded';
 				while($row = $result_sam->fetch_array())
@@ -586,30 +498,29 @@ function loadAdsForReport($playsheet_id){
 			$db_ids = array();
 			$playeds = array();
 			
-			if(!empty($adTable)){
-						foreach( $adTable as $i => $row ){
-							$times []= $row['time'];
-							$types []= $row['type'];
-							
-							if( is_numeric($row['name']) ){
-								$names []= $this->getAdNameFromID($row['name']);
-							} else {				
-								$names []= $row['name'];
-							}
-			//				$samIDs []= $row['sam_id'];
-			//				$db_ids []=$row['id'];
-							$playeds []= $row['played'];
-							
-							
-						}
-				//		$string.="<br/>query: ".$adload_query."<br/>";
-				//		print_r($adload_result);
+			foreach( $adTable as $i => $row ){
+				$times []= $row['time'];
+				$types []= $row['type'];
 				
-					
-			
+				if( is_numeric($row['name']) ){
+					$names []= $this->getAdNameFromID($row['name']);
+				} else {				
+					$names []= $row['name'];
+				}
+//				$samIDs []= $row['sam_id'];
+//				$db_ids []=$row['id'];
+				$playeds []= $row['played'];
 				
-					return array($times,$types,$names,$playeds);
-					}
+				
+			}
+	//		$string.="<br/>query: ".$adload_query."<br/>";
+	//		print_r($adload_result);
+	
+		
+
+	
+		return array($times,$types,$names,$playeds);
+		
 		
 	
 	}
@@ -643,6 +554,54 @@ function loadAdsForReport($playsheet_id){
 
 // DO NOT DEFINE FUNCTIONS IN HERE ( you won't have access to the class private vars )
 
+
+
+//old - unused
+/*
+function getAdsFromTimeBlock($unixTime){
+		
+		$load_query = "SELECT * FROM scheduled_ads WHERE time_block = '".$unixTime."'";
+//		if ($result_load = $this->citr_link->query($load_query)){
+		if ($result_load = mysqli_query($this->citr_link,$load_query)){
+			
+			$loadedAdSelect = $result_load->fetch_array();
+			
+			if(count($loadedAdSelect)<=0){
+				//there are no ads!
+				
+				return 0;
+			}
+			$adIDList = explode(';',$loadedAdSelect[sam_song_id_list]);
+//			echo 'loaded ad select:<br/>';
+//			print_r($loadedAdSelect);
+			$adStringList = array();
+			
+			$result_load->close();
+			
+		}
+	
+		foreach($adIDList as $i => $adID){
+			if($adID!='noad'){
+				//	echo 'adID: '.$adID.'<br/>';
+				$ad_q = "SELECT artist, title FROM songlist WHERE ID = '".$adID."'";
+	//			if( $result_ads = $this->sam_link->query($ad_q)){
+				if( $result_ads = mysqli_query($this->sam_link,$ad_q)){
+					$adArray = $result_ads->fetch_array();
+				$adStringList []= $adArray[artist].' - '.$adArray[title];
+	
+				}
+			}
+			else{
+			$adStringList []= '--';
+			}
+			
+		}
+		
+	//		echo $load_query;
+		return array($adIDList,$adStringList);
+//		return 0;
 	
 	
+	}
+	*/
 ?>

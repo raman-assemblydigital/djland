@@ -4,13 +4,13 @@
 //***********      REQUIREMENTS       ***************
 //***************************************************
 
-$cc_reg_req = 35; // mysqli_result_dep($result,$count,"cc_req");
+$cc_reg_req = 35; // mysqli_result($result,$count,"cc_req");
 $cc_spec_req = 12;
 $cc_spec_ethnic_req = 7;
-$pl_req = 60;// mysqli_result_dep($result,$count,"pl_req");
-$fe_req = 35;// mysqli_result_dep($result,$count,"fem_req");
-$inst_req = 35;// mysqli_result_dep($result,$count,"fem_req");
-$hit_req = 10;// mysqli_result_dep($result,$count,"fem_req");
+$pl_req = 60;// mysqli_result($result,$count,"pl_req");
+$fe_req = 35;// mysqli_result($result,$count,"fem_req");
+$inst_req = 35;// mysqli_result($result,$count,"fem_req");
+$hit_req = 10;// mysqli_result($result,$count,"fem_req");
 $locally_produced_req = 15; // (spoken word)
 $max_ad_mins_per_week = 504;
 
@@ -22,38 +22,28 @@ $SOCAN_FLAG;
 require("../headers/db_header.php");
 require("../headers/function_header.php");
 require("../headers/showlib.php");
-
+require("../adLib.php");
 require("../headers/socan_header.php");
 $showlib = new Showlib($db);
-
-if($using_sam && $enabled['adscheduler']){
-	require("../adLib.php");
-	$adLib = new AdLib($mysqli_sam,$db);
-}
-
+$adLib = new AdLib($mysqli_sam,$db);
 $SOCAN_FLAG =socanCheck($db);
 // CRTC Broadcast Day hours - 6:00am to midnight
 if(isset($_POST['min_time']) && isset($_POST['max_time'])){
 $min_time = $_POST['min_time'];
 $max_time = $_POST['max_time'];
 } else { // uncomment when know post loading works
- $min_time = 6;
- $max_time = 24;
+// $min_time = 6;
+// $max_time = 24;
 }
+
 
 if(isset($_POST['from'])){
-	$from = $_POST['from'];
-	$to = $_POST['to'] ;
-
-	$from = strtotime($from);
-	$to = strtotime($to)+ 24*60*60; //add one day to make the request include last day in range
-
-} else {
-//	$from = new Date(1397631600);
-//	$to =  new Date(1398322800);
-	$from = 1397631600;
-	$to =  1398322800;
+$from = $_POST['from'];
+$to = $_POST['to'] ;
 }
+$from = strtotime($from);
+$to = strtotime($to)+ 24*60*60; //add one day to make the request include last day in range
+
 $total_hours = ($max_time-$min_time)*($to-$from)/(24*60*60);
 
 $max_ad_mins = round(($max_ad_mins_per_week * ($total_hours / 126)) , 1);
@@ -69,10 +59,6 @@ $adsLogged = array();
 $showList = grabPlaylists($from,$to, $db);
 $plays = grabPlayitems($from,$to, $db);
 echo 'FROM: '.$from.', TO: '.$to;
-
-// if no data, return and print 'no data for this period'
-
-
 
 // filter out shows that didn't air during broadcast day hours
 // make two windows out of max and min to represent nighttime non-broadcast day hours
@@ -121,39 +107,32 @@ $min = $showList[0]['id'];
 $last = array_slice($showList,-1);
 $max = $last[0]['id'];
 
+// GRAB ADS THAT CORRESPOND WITH PLAYLIST RANGE
+$query = "SELECT playsheet_id, name, played, sam_id FROM adlog WHERE playsheet_id >= '$min' AND playsheet_id <= '$max' AND LEFT(type,2) = 'AD'  ORDER BY playsheet_id ASC";
 
-
-if($enabled['adscheduler']){
-
-	// GRAB ADS THAT CORRESPOND WITH PLAYLIST RANGE
-	$query = "SELECT playsheet_id, name, played, sam_id FROM adlog WHERE playsheet_id >= '$min' AND playsheet_id <= '$max' AND LEFT(type,2) = 'AD'  ORDER BY playsheet_id ASC";
-
-	if( $result = $db->query($query)){
-		while($row = $result->fetch_assoc()){
-			$thisID = $row['playsheet_id'];
-			$adsLogged[$thisID] []=$row;		
-		}
-	} else {
-	$output_summary .= "citr database problem :(";	
+if( $result = $db->query($query)){
+	while($row = $result->fetch_assoc()){
+		$thisID = $row['playsheet_id'];
+		$adsLogged[$thisID] []=$row;		
 	}
-
+} else {
+$output_summary .= "citr database problem :(";	
 }
 
 // TODO: implement this helper function also
 // $adsLogged = grabAds(...)
 
-if ($using_sam){
-	$query = "SELECT songID, artist, title, date_played, duration, songtype FROM historylist WHERE date_played >= '$samFrom' AND date_played <= '$samTo' AND (songtype = 'A' OR songtype = 'I') ORDER BY date_played ASC";
 
-	if( $result = $mysqli_sam->query($query)){
-		while($row = $result->fetch_assoc()){
-			
-			$row['date_unix'] = strtotime($row['date_played']); 
-			$samPlays []=$row;		
-		}
-	} else {
-	$output_summary .= "SAM database problem :(";	
+$query = "SELECT songID, artist, title, date_played, duration, songtype FROM historylist WHERE date_played >= '$samFrom' AND date_played <= '$samTo' AND (songtype = 'A' OR songtype = 'I') ORDER BY date_played ASC";
+
+if( $result = $mysqli_sam->query($query)){
+	while($row = $result->fetch_assoc()){
+		
+		$row['date_unix'] = strtotime($row['date_played']); 
+		$samPlays []=$row;		
 	}
+} else {
+$output_summary .= "SAM database problem :(";	
 }
 
 // sample sam play:
@@ -168,14 +147,7 @@ foreach($showList as $i => $v){
 
 
 
-$output_summary .= "<h2 class=header-left><font color=black>CRTC Report - ";
-$output_summary .= $station_info['call_letters']." ";
-$output_summary .= $station_info['frequency']." ";
-$output_summary .= $station_info['city'].", ";
-$output_summary .= $station_info['province'].", ";
-$output_summary .= $station_info['country']." - ";
-$output_summary .= $station_info['website'];
-$output_summary .= "</font></h2>";
+$output_summary .= "<h2 class=header-left><font color=black>CRTC Report - CiTR 101.9fm Vancouver, BC, Canada - citr.ca</font></h2>";
 $output_summary .= "<div id='report-summary'>";
 $output_summary .= "<h2 class=header-left>Summary</h2>";
 $output_summary .= "	from: ".date("D, F jS, Y",$from)."<br/>
@@ -195,14 +167,9 @@ $total_fe = 0;
 $total_inst = 0;
 $total_hit = 0;
 
-if ( $total_items <= 0 ){
-	echo ' <br/><br/> no data found for this date period ';
-	return;
-}
-
 foreach($plays as $i => $play){
 			// for each show, no need to load the show's CRTC requirements
-	$show_id = mysqli_result_dep($result,$count,"id");
+	$show_id = mysqli_result($result,$count,"id");
 	
 	if($play['is_playlist']==1) $total_pl++;
 	if(($play['is_canadian']==1)&&($play['crtc_category']==20)) $total_cc_reg++;
@@ -365,47 +332,39 @@ foreach($showList as $i => $v){
 								}	else{
 										$output_body .= "(".round((100*$total_cc_spec_show/$total_spec_show),2)."%)</span> <br/>";
 								}
-							$output_body .= "playlist: &nbsp;&nbsp;&nbsp;&nbsp;".$total_pl_show." / ".$count_show." <span id='show-percent'>(";
-
-								if($count_show!=0)	{
-									$output_body .= round((100*$total_pl_show/$count_show),2);
-									$output_body .= "%)</span> <br/>
-									femcon: &nbsp;&nbsp;&nbsp;".$total_fe_show." / ".$count_show." <span id='show-percent'>(".round((100*$total_fe_show/$count_show),2)."%)</span> <br/>
-									hits:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-									".$total_hit_show." / ".$count_show." <span id='show-percent'>(".round((100*$total_hit_show/$count_show),2)."%)</span> <br/>";
-									}
-									$output_body .="
-													</div>
-												</div>";
-											
-				if($using_sam){
-					$output_body .= "<div class='crtcadreport'><h4 class=header-left>Spoken Word:</h4>";
-						$output_body .= 'Tracked Plays:<br/>';
+							$output_body .= "playlist: &nbsp;&nbsp;&nbsp;&nbsp;".$total_pl_show." / ".$count_show." <span id='show-percent'>(".round((100*$total_pl_show/$count_show),2)."%)</span> <br/>
+								femcon: &nbsp;&nbsp;&nbsp;".$total_fe_show." / ".$count_show." <span id='show-percent'>(".round((100*$total_fe_show/$count_show),2)."%)</span> <br/>
+								hits:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								".$total_hit_show." / ".$count_show." <span id='show-percent'>(".round((100*$total_hit_show/$count_show),2)."%)</span> <br/>
+					</div>
+				</div>";
+		
+				$output_body .= "<div class='crtcadreport'><h4 class=header-left>Spoken Word:</h4>";
+					$output_body .= 'Tracked Plays:<br/>';
+				
+				foreach($samPlays as $j => $w){
+				
+				if(	( $w['date_unix']>= $start_unix) && 
+					( $w['date_unix']<= $end_unix) ) {
+					$time_played = explode(' ',$w['date_played']);
+					$time_played = date("g:i a ",strtotime($time_played[1]));
+					$duration = round(($w['duration']/1000),0);
+					$type = $w['songtype'];
+					if ($type=='I') $type = 'Station ID (43)'; else{}
+					if ($type=='A') {
+							$type = 'Advertisement (51)';
+							$total_ads_show += $duration;
 					
-					foreach($samPlays as $j => $w){
+						} else{}
+					$output_body .= $time_played.' - '.$type.' - "'.$w['artist'].' '.$w['title'].'" ('.$duration.' secs)<br/>';
 					
-					if(	( $w['date_unix']>= $start_unix) && 
-						( $w['date_unix']<= $end_unix) ) {
-						$time_played = explode(' ',$w['date_played']);
-						$time_played = date("g:i a ",strtotime($time_played[1]));
-						$duration = round(($w['duration']/1000),0);
-						$type = $w['songtype'];
-						if ($type=='I') $type = 'Station ID (43)'; else{}
-						if ($type=='A') {
-								$type = 'Advertisement (51)';
-								$total_ads_show += $duration;
-						
-							} else{}
-						$output_body .= $time_played.' - '.$type.' - "'.$w['artist'].' '.$w['title'].'" ('.$duration.' secs)<br/>';
-						
-						}
 					}
-					
-					$output_body .= '<br/>Station IDs:<br/>';
 				}
 				
-				if($using_sam && $enabled['adscheduler']){
-			//		returns array($times,$types,$names,$playeds);
+				$output_body .= '<br/>Station IDs:<br/>';
+				
+				
+				//		returns array($times,$types,$names,$playeds);
 					$jackson = $adLib->loadAdsForReport($v['id']);
 					
 					
@@ -414,14 +373,11 @@ foreach($showList as $i => $v){
 					$names_list = $jackson[2];
 					$playeds = $jackson[3];
 					
-					if(!empty($times_list))	{
-										foreach( $times_list as $x => $time_val){
-											
-											if( $playeds[$x] && $types_list[$x]=='Station ID'){
-												$output_body .= $times_list[$x].': Station ID<br/>';
-											}
-										}
-									}
+				foreach( $times_list as $x => $time_val){
+					
+					if( $playeds[$x] && $types_list[$x]=='Station ID'){
+						$output_body .= $times_list[$x].': Station ID<br/>';
+					}
 				}
 				
 				

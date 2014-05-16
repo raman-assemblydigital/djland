@@ -7,13 +7,12 @@
 <div id="SamListRecent">
 <?php
 
+
+
 define ("HISTORY_COUNT", 50);
 
 
 require_once("headers/db_header.php");
-
-require_once('headers/config.php');
-date_default_timezone_set($station_info['timezone']);
 
 
 if ($result_sam = $mysqli_sam->query("SELECT * FROM historylist WHERE songtype='S' order by date_played desc LIMIT ".HISTORY_COUNT)) {
@@ -33,10 +32,10 @@ foreach($rows as $row)
 	$date = date("M j, g:ia",strtotime($row['date_played']));
 	
 	$catalog = $row['ISRC'];
-	$artist = $row['artist'];
-	$song = $row['title'];
-	$album = $row['album'];
-	$composer = $row['composer'];
+	$artist = html_entity_decode($row['artist']);
+	$song = html_entity_decode($row['title']);
+	$album = html_entity_decode($row['album']);
+	$composer = html_entity_decode($row['composer']);
 	$durMin =  intval($row['duration']/60000);
 	$durSec = ($row['duration']/1000)%60;
 	$samSongID = $row['songID'];
@@ -68,10 +67,11 @@ $result_citr->close();
 
 
 
-if ($result_sam = $mysqli_sam->query("SELECT lyrics FROM songlist WHERE id=".$samSongID)) {
-	$songType = $result_sam->fetch_array();	
+if ($result_sam = $mysqli_sam->query("SELECT info,lyrics FROM songlist WHERE id=".$samSongID)) {
+	$sam_info = $result_sam->fetch_array();	
 
-echo '<span id="songType" class="invisible">'.$songType['lyrics'].'</span>';
+echo '<span id="songType" class="invisible">'.$sam_info['lyrics'].'</span>';
+echo '<span id="songCategory" class="invisible">'.$sam_info['info'].'</span>';
 $result_sam->close();
 }
 
@@ -84,9 +84,15 @@ echo '</div>';
 
 }
 
+
+//     free result set 
+    $result_sam->close();
+  
 }
+
 $mysqli_sam->close();
 $db->close();
+  
 ?>
 </div>
 </body>

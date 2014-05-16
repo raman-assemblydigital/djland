@@ -9,8 +9,6 @@
 
 require_once("headers/db_header.php");
 
-require_once('headers/config.php');
-date_default_timezone_set($station_info['timezone']);
 session_start();
 
 if($_POST['from']){
@@ -38,7 +36,7 @@ foreach($rows as $row)
 {
 	$id = $index++;
 	$date = $row['date_played'];
-	$catalog = $row['ISRC'];
+	$catalog = $row['ISRC']; // CiTR's CD library number
 	$artist = html_entity_decode($row['artist']);
 	$song = html_entity_decode($row['title']);
 	$album = html_entity_decode($row['album']);
@@ -67,24 +65,28 @@ echo '<span id="pmCheck" class="invisible">'.$pmCheck.'</span>';
 
 //if ($result_citr = $db->query("SELECT cancon,femcon FROM library WHERE catalog=".$catalog)) {
 
-
+// now lookup in CD library to see status (cancon, femcon, category)
+// for CiTR, the 
 if ($result_citr = $db->query("SELECT cancon,femcon FROM library WHERE catalog=".$catalog)) {
 	
 $content = $result_citr->fetch_array();
+
 echo '<span id="cancon" class="invisible">'.$content['cancon'].'</span><span id="femcon" class="invisible">'.$content['femcon'].'</span>';
 $result_citr->close();
 } else echo 'content not available';
 
 
-$query = "SELECT lyrics FROM songlist WHERE id=".$samSongID;
+$query = "SELECT info, lyrics FROM songlist WHERE id=".$samSongID;
 if ($result_sam = $mysqli_sam->query($query)) {
-	$songType = $result_sam->fetch_array();	
+	$sam_song_info = $result_sam->fetch_array();	
+	
+	echo '<span id="songType" class="invisible">'.$sam_song_info['lyrics'].'</span>';
+	$category = $sam_song_info['info']; // SAM's 'info' field comes from from ID3 'comments' tag, where we store 'category 2' ( or 3 )
+	echo '<span id="songCategory" class="invisible">'.$category.'</span>';
+	$result_sam->close();
 
-//echo '<span id="songType" class="invisible">'.$songType['lyrics'].'</span>';
-$result_sam->close();
 
-
-} else echo ' not available - ';
+} else echo ' sam song info not available ';
 
 echo '</div>';
 

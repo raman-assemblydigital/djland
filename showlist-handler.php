@@ -1,14 +1,16 @@
-// TODO test this file ( should print out an HTML document that is a list of all station shows )
-
 <?php
 
-$RSS_url = 'http://www.citr.ca/images/rss.gif'; // change if you want to use your own RSS image
-
-include_once('headers/config.php');
-include_once('headers/db_header.php');
 include_once('headers/showlib.php'); 
+//include_once('headers/db/php');
+
 
 function mysqli_result($res, $row, $field=0) { 
+//	echo 'called mysqli result';
+//	echo '<br/>';
+//	echo 'res:'.'<br/>';
+//	print_r($res);
+//	echo 'row:'.$row.'<br/>';
+//	echo 'field:'.$field.'<br/>';
 	if(is_object($res))    
 		$res->data_seek($row); 
 	else 	return false;
@@ -21,6 +23,25 @@ function mysqli_result($res, $row, $field=0) {
 	        
 } 
 
+$db = new mysqli('p:192.168.25.73', 'wpshowlist', 'supersayan101', 'citr_live');
+			if (mysqli_connect_error()) {
+	    		print('Connect Error for citr db (' . mysqli_connect_errno() . ') '
+	            . mysqli_connect_error());
+			}
+			
+			
+			/*
+$db = mysql_connect("192.168.25.73", "wpshowlist", "DellyDillPickle%27&49");
+if (!$db) echo "<br/><i>cannot connect to database</i>";
+
+$b_success = mysql_select_db("citr", $db);
+if (!$b_success) echo "<br/><i>cannot select database table</i>";
+			*/
+			
+			
+
+
+//mysqli_query($db,"SET NAMES utf8");
 
 $showlib = new ShowLib($db);
 //$showlib-> sayHi();
@@ -40,17 +61,15 @@ $numshows = count($allshows);
 $numletters = 26;
 $letters = array("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z");
 
-echo '<html><head><meta http-equiv="Access-Control-Allow-Origin" content="*"></head><body>';
-
 function printShow($show) {
 	
 //	if (!is_null($show->show_desc)) {
 		echo "<h4>{$show->name}";
 		$anchorvalue = trim($show->name);
-//		$anchorvalue = $anchorvalue.replace(/\s+/, "");
+		$anchorvalue = $anchorvalue.replace(/ /g,'');
 		echo "<a href='#".$anchorvalue."'></a>";
 		if (!is_null($show->podcast)) {
-			echo " <a href='{$show->podcast}'><img src='{$RSS_url}' alt='RSS'/></a>";
+			echo " <a href=\"{$show->podcast}\"><img src=\"http://www.citr.ca/images/rss.gif\" alt=\"RSS\"/></a>";
 		}
 		echo "</h4>";
 		if (!is_null($show->img_url)) {
@@ -153,8 +172,5 @@ for ($lpos++; $lpos<$numletters; $lpos++) { // Print rest of letters
 	$currletter = strtolower($letters[$lpos]);
 	echo "<a name='{$letters[$lpos]}'></a>";
 }
-
-echo '</body></html>';
-
+//mysqli_select_db("citrwordpress", $db);
 ?>
-

@@ -1,15 +1,13 @@
 <?php
 //FUNCTION HEADER - playlist.citr.ca
 
-
-date_default_timezone_set($station_info['timezone']);
 //Membership status, index by Name/ID
 $fresult = mysqli_query($db,"SELECT * FROM membership_status ORDER BY 'sort', 'name'");
 $fnum_rows = mysqli_num_rows($fresult);
 $fcount = 0;
 while($fcount < $fnum_rows) {
-	$fmembership_status_name[mysqli_result_dep($fresult,$fcount,"id")] = mysqli_result_dep($fresult,$fcount,"name");
-	$fmembership_status_id[mysqli_result_dep($fresult,$fcount,"name")] = mysqli_result_dep($fresult,$fcount,"id");
+	$fmembership_status_name[mysqli_result($fresult,$fcount,"id")] = mysqli_result($fresult,$fcount,"name");
+	$fmembership_status_id[mysqli_result($fresult,$fcount,"name")] = mysqli_result($fresult,$fcount,"id");
 	$fcount++;
 }
 
@@ -21,8 +19,8 @@ $fnum_rows = mysqli_num_rows($fresult);
 $fcount = 0;
 
 while($fcount < $fnum_rows) {
-	$fformat_name[mysqli_result_dep($fresult,$fcount,"id")] = mysqli_result_dep($fresult,$fcount,"name");
-	$fformat_id[mysqli_result_dep($fresult,$fcount,"name")] = mysqli_result_dep($fresult,$fcount,"id");
+	$fformat_name[mysqli_result($fresult,$fcount,"id")] = mysqli_result($fresult,$fcount,"name");
+	$fformat_id[mysqli_result($fresult,$fcount,"name")] = mysqli_result($fresult,$fcount,"id");
 	$fcount++;
 }
 
@@ -68,7 +66,7 @@ function fget_id($name, $table, $do_insert) {
 	$name = fas($name);
 
 	if(mysqli_num_rows($result = mysqli_query($db,"SELECT * FROM `$table` WHERE (name = '$name')" ))) {
-		return mysqli_result_dep($result,0,"id");
+		return mysqli_result($result,0,"id");
 	}
 	else if($do_insert){
 		mysqli_query($db,"INSERT INTO `$table` (name) VALUES ('$name')");
@@ -87,7 +85,7 @@ function fget_song_id($artist, $title, $song) {
 	$song = fas($song);
 
 	if(mysqli_num_rows($result = mysqli_query($db,"SELECT * FROM `songs` WHERE (artist='$artist' AND title='$title' AND song='$song')"))) {
-		return mysqli_result_dep($result,0,"id");
+		return mysqli_result($result,0,"id");
 	}
 	else {
 		mysqli_query($db,"INSERT INTO `songs` (artist, title, song) VALUES ('$artist', '$title', '$song')");
@@ -219,5 +217,47 @@ return 0;
 
 
 }
+
+
+
+
+
+// $numrows is the number of recent playlists you want
+// $filter (optional) show id to filter by
+function getRecentPlaylists($db, $numrows,$filter){
+	//if we are filtering by a showname then filter our query.
+	
+	$playlists = array();
+	
+	if($filter)
+	{
+	//query playlists for saved playlists with show id = to show we are filtering
+	$query="SELECT id, show_id, start_time, status, star FROM playlists WHERE show_id =".$filter." ORDER BY start_time DESC LIMIT ".$numrows;
+	
+	}
+	else
+	{
+	//query playlists database for ALL saved playlists
+	$query = "SELECT id, show_id, start_time, status, star FROM playlists ORDER BY start_time DESC LIMIT ".$numrows;
+	}
+	
+	if ($result = mysqli_query($db,$query)){
+	
+			while($row = $result->fetch_array()){
+			
+				$playlists []= $row;
+		
+	
+	
+			}
+	} else {
+	return ' there was a  problem in the db';
+	}
+//	print_r($playlists);
+	return $playlists;
+	
+	
+	}
+	
 //END FUNCTION HEADER
 ?>

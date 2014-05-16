@@ -1,37 +1,32 @@
 <?php
 //DB HEADER
-require_once('config.php');
+//open the database
 
-//*******************************************
-//*******************************************
-//*******************************************
+global $samDB_ip, $samDB_user, $samDB_pass, $samDB_dbname;
+$samDB_ip = 'p:192.168.25.69';
+$samDB_user = 'samuser';
+$samDB_pass = 'sam101.9';
+$samDB_dbname = 'samdb-live';
 
-$db = new mysqli($djland_db_address, $djland_db_username, $djland_db_password, $djland_db_dbname);
+
+
+$db = new mysqli('p:192.168.25.73', 'playlist', '79bananas2013CAPS4evr', 'citr_dev');
 			if (mysqli_connect_error()) {
-	    		print('Connect Error for djland db (' . mysqli_connect_errno() . ') '
+	    		print('Connect Error for citr db (' . mysqli_connect_errno() . ') '
 	            . mysqli_connect_error());
 			}
 			
-// DJLAND's playsheet can be customized to link to a music library mySQL backend
-// this provides the ability to easily add plays to a playsheet without typing
-// actually, any digital media library / player that uses MySQL should work
-// as long as the table names and column names are consistent with the code
-// watch this space for a list of those table names in case you want to use a 
-// different digital media player
+			
+			
+$mysqli_sam = new mysqli($samDB_ip, $samDB_user, $samDB_pass, $samDB_dbname);
 
-if($using_sam){
-
-    global $samDB_ip, $samDB_user, $samDB_pass, $samDB_dbname;
-
-    $mysqli_sam = new mysqli($samDB_ip, $samDB_user, $samDB_pass, $samDB_dbname);
-
-    if (mysqli_connect_error()) {
-        echo 'there is a connection error';
-        die('Connect Error for sam db (' . mysqli_connect_errno() . ') '
-                . mysqli_connect_error());
-    }
+if (mysqli_connect_error()) {
+	echo 'there is a connection error';
+    die('Connect Error for sam db (' . mysqli_connect_errno() . ') '
+            . mysqli_connect_error());
 }
-function mysqli_result_dep($res, $row, $field=0) {
+
+function mysqli_result($res, $row, $field=0) { 
 //	echo 'called mysqli result';
 //	echo '<br/>';
 //	echo 'res:'.'<br/>';
