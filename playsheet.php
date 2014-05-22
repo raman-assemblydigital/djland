@@ -656,6 +656,12 @@ if (count($matches)>1){
 			printf("<INPUT type=hidden id='psid' name=id value=%s>", $ps_id);
 		//}
 		
+		
+		
+		echo '<div id="test-text" value=" "> </div>';
+		
+		printf("<center><h1>DJ PLAYSHEET</h1></center>");
+		echo "<table border=0 align=center width=100%%><tr><td>Show Type: ";
 		if( isset($loaded_type) && ($loaded_type != null) ){
 		echo "<select id='type' name='type' value=".$loaded_type."><option>".$loaded_type."</option>";
 		} else {
@@ -673,7 +679,7 @@ if (count($matches)>1){
 		
 		$playsheet_list = getRecentPlaylists($db,500);
 		
-		echo "<br/><br/><select style='height:25px' class=invisible id='select-playsheet' >" ;
+		echo "<br/><select style='height:25px' class=invisible id='select-playsheet' >" ;
 		foreach($playsheet_list as $i => $a_playsheet){
 	 
 			$ps_list_date_unix = strtotime($a_playsheet['start_time']); 
@@ -684,14 +690,11 @@ if (count($matches)>1){
 	 
 		}
 		echo '</select>';
-		echo '<button id="load-playsheet" type="button" class="invisible">Select This Playsheet</button>';
+		echo '<button id="load-playsheet" type="button" class="invisible">Select This Playsheet</button></tr>';
 		
-		echo '<div id="test-text" value=" "> </div>';
-		
-		printf("<center><h1>DJ PLAYSHEET</h1></center>");
 		echo 	"<span id='ps_header'>";
 		
-		printf("<table border=0 align=center width=100%%><tr><td> Show: <select id='showSelector' name=\"showtitle\"  >");
+		printf("<tr><td> Show: <select id='showSelector' name=\"showtitle\"  >");
 
 		if ($ps_id || $show_name) printf("<option value='%s' selected='selected'>%s",$show_id, $show_name);
 		
@@ -1072,7 +1075,7 @@ echo "Total Overall Duration:<br/>";
 			$hours = floor($loaded_sw_duration/60);
 			$minutes = $loaded_sw_duration%60;
 			echo $hours;
-			} else echo "0";
+			} else echo "00";
 		for($i=0; $i < 24; $i++) printf("<OPTION>%02d", $i);
 		printf("</SELECT> Hours <br/>");
 		printf("<SELECT NAME='sw-time-min' id='sw-time-min'  >\n<OPTION>");
@@ -1108,7 +1111,7 @@ echo "Total Overall Duration:<br/>";
 		}
 		printf("</FORM>");
 		// echo'
-		print("<div class='bugsAndTopChart'><div class='bugs'>For bug reporting, troubleshooting, and question-answering email:<br/> <a href='mailto:technicalservices@citr.ca,mailto:technicalassistant@citr.ca'>technicalservices@citr.ca</a><br/><br/> Or visit the<a href='QA.php' target='_blank'> Q&A </a>page</div>");
+		print("<div class='bugsAndTopChart'><div class='bugs'>For bug reporting, troubleshooting, and question-answering, <br/> <a href='mailto:technicalservices@citr.ca,technicalassistant@citr.ca'>Email Our Tech Department.</a><br/><br/> Or visit the<a href='QA.php' target='_blank'> Q&A </a>page</div>");
 		print("<div class='topChart'>");
 		print("Note: a song is a 'hit' if it has ever been in the top 40 of any of these charts:<br/>");
 		print("<a target='none' href='http://www.billboard.com/charts/hot-100'>Billboard Hot 100</a><br/>");
