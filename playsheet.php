@@ -15,6 +15,13 @@ $showlib = new Showlib($db);
 print_menu();
 $SOCAN_FLAG=socanCheck($db);
 
+if (socanCheck($db) || $_GET['socan']=='true' ){
+
+	$SOCAN_FLAG = true;
+} else {
+	$SOCAN_FLAG = false;
+}
+
 if($SOCAN_FLAG)
 {
 print ('<input type="hidden" id="socancheck" value="1">');
@@ -49,12 +56,12 @@ var socan=<?php echo json_encode($SOCAN_FLAG); ?>;
 <head>
 <meta name=ROBOTS content=\"NOINDEX, NOFOLLOW\">
 <meta charset="utf-8">
-<link rel=stylesheet href='citr.css' type='text/css'>
+<link rel=stylesheet href='css/style.css' type='text/css'>
 
-<title>Playsheet</title>
+<title>DJLAND | Playsheet</title>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script src="http://malsup.github.com/jquery.form.js"></script> 
+<script src="js/jquery.form.js"></script> 
 
 <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
   <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
@@ -151,6 +158,7 @@ if( (is_member("dj") || (is_member("editdj") && $newPlaysheet ) ) && $actionSet 
 } 
 	else {
 		 echo "<h3>sorry, there was a database problem :(</h3><br/>";
+// uncomment to help DEBUG mysql queries
 //		 echo "<h3>This playsheet needs to be repaired.  Please copy and paste the following text".
 //		 " and email to technicalservices@citr.ca: </h3><hr> problematic query: ".
 //		 $update_show_query ."<hr>";
@@ -312,6 +320,9 @@ else if($actionSet && $action == 'list' ) {
 
 
 	printf("<CENTER><FORM METHOD=\"GET\" ACTION=\"%s\" name=\"the_form\">\n", $_SERVER['SCRIPT_NAME']);
+
+	echo "<CENTER><FORM METHOD='GET' name='the_form'>";
+	
 	printf("<INPUT type=hidden name=action value=edit>");
 	
 	printf("<SELECT NAME=\"id\" SIZE=25>\n");
@@ -344,8 +355,12 @@ else if($actionSet && $action == 'list' ) {
 		print("<option value='".mysqli_result($result,$count,"id")."'>".$theDate." - ".$star_.$fshow_name[mysqli_result($result,$count,"show_id")].$star_." ".$draft);
 		$count++;
 	}
-	printf("</SELECT><BR><button TYPE=submit VALUE=\"View Playsheet\" >View Playsheet</button>\n");
-	printf("</FORM></CENTER>\n");
+//	printf("</SELECT><BR><button TYPE=submit VALUE=\"View Playsheet\" class='bigbutton'>View Playsheet</button>\n");
+//	printf("</FORM></CENTER>\n");
+
+	echo "</SELECT><BR><button TYPE=submit VALUE='View Playsheet' class='bigbutton' >View Playsheet</button>";
+	echo "<br/><br/><button type=submit name=socan value='true' >Load as SOCAN playsheet</button>";
+	echo "</FORM></CENTER>";
 
 	if((is_member("addshow"))){
 	echo '<a href="setSocan.php">Set a Socan Period Here</a>';
@@ -469,9 +484,6 @@ $adLib = new AdLib($mysqli_sam,$db);
 			$pl_date_min = date('i', $unix_start_time);
 			
 			$show_end = strtotime($currshow->times[0]['end_time']);
-//			echo"<hr/>";
-//			print_r($currshow->times[0]);
-//			echo"<hr/>";
 			$end_date_hour = date('H', $show_end);
 			$end_date_min = date('i', $show_end);
 			
@@ -481,7 +493,6 @@ $adLib = new AdLib($mysqli_sam,$db);
 			// MAKING NEW PS THAT IS RIGHT NOW (default)
 			
 			$currshow = $showlib->getCurrentShow();
-			$viewplaylistarray[]=blank_array;
 			
 			$showtime = $currshow->getMatchingTime($showlib->getCurrentTime());
 		
@@ -520,7 +531,7 @@ $adLib = new AdLib($mysqli_sam,$db);
 			$loaded_sw_duration =  "";
 			
 //			echo 'unix start time: '.$unix_start_time;
-			$adTable = $adLib->generateTable($unix_start_time,'dj');
+			$adTable = $adLib->generateTable($unix_start_time,'dj', false);
 	}
 	
 		if($loaded_crtc)
@@ -650,16 +661,15 @@ if (count($matches)>1){
 //		echo ('playsheet edit view. ID is '.$ps_id.'<br/>timestamp: '.$unix_start_time);
 //		echo '.  Date: '.date( 'D, M j, g:ia', $unix_start_time);
 		
-		printf("<FORM METHOD=POST ACTION=\"%s?action=submit\" name=\"playsheet\" id='playsheetForm' >", $_SERVER['SCRIPT_NAME']);
-
+		if($SOCAN_FLAG){
+			printf("<FORM METHOD=POST ACTION=\"%s?action=submit&socan=true\" name=\"playsheet\" id='playsheetForm' >", $_SERVER['SCRIPT_NAME']);
+		} else {
+			printf("<FORM METHOD=POST ACTION=\"%s?action=submit\" name=\"playsheet\" id='playsheetForm' >", $_SERVER['SCRIPT_NAME']);
+		}
 		//if($ps_id) {
 			printf("<INPUT type=hidden id='psid' name=id value=%s>", $ps_id);
 		//}
-		
-		
-		
-		echo '<div id="test-text" value=" "> </div>';
-		
+
 		printf("<center><h1>DJ PLAYSHEET</h1></center>");
 		echo "<table border=0 align=center width=100%%><tr><td>Show Type: ";
 		if( isset($loaded_type) && ($loaded_type != null) ){
@@ -747,7 +757,7 @@ if (count($matches)>1){
 		
 		print("<td/><tr/></table>");
 		
-		echo "<img src='loading.gif' id='ps-loading-image'>";
+		echo "<img src='images/loading.gif' id='ps-loading-image'>";
 		echo "</span>";		
 		
 		//main interface table
@@ -1094,6 +1104,7 @@ echo "Total Overall Duration:<br/>";
 
 </div>
 <br/><br/><br/><br/><br/><br/><hr/>
+<?php if($enabled['podcast_tools']){ ?>
 <div id='podcast-tools'>
 <h2>Podcast Tools</h2>
 <center>
@@ -1104,6 +1115,7 @@ echo "Total Overall Duration:<br/>";
 </div>
 
 	<?php
+		}// end of podcast tools creation block
 		
 			if(!$ps_id || is_member("editdj")) {
 			printf("<center><br/><span id='submitMsg'>This is an incomplete playsheet. <br/>Please fill in all music fields: <b>artist</b>, <b>album</b> (release title), and <b>song</b>. Also delete all empty rows by clicking the '-' button.<br/>You may temporarily save a draft and resume at another time by clicking 'Save draft' in the top right corner</span><br/><button id=submit type=submit value=\"Save Playsheet\">Submit Playsheet</button></center><br/><br/><br/>
@@ -1111,7 +1123,12 @@ echo "Total Overall Duration:<br/>";
 		}
 		printf("</FORM>");
 		// echo'
-		print("<div class='bugsAndTopChart'><div class='bugs'>For bug reporting, troubleshooting, and question-answering, <br/> <a href='mailto:technicalservices@citr.ca,technicalassistant@citr.ca'>Email Our Tech Department.</a><br/><br/> Or visit the<a href='QA.php' target='_blank'> Q&A </a>page</div>");
+
+	
+		print("<div class='bugsAndTopChart'>");
+		if (isset($station_info['tech_email'])){
+		echo "<div class='bugs'>For support, email:<br/> <a href='mailto:".$station_info['tech_email']."'>.".$station_info['tech_email']."</a><br/><br/> Or visit the<a href='help.php' target='_blank'> Q&A </a>page</div>";
+		}
 		print("<div class='topChart'>");
 		print("Note: a song is a 'hit' if it has ever been in the top 40 of any of these charts:<br/>");
 		print("<a target='none' href='http://www.billboard.com/charts/hot-100'>Billboard Hot 100</a><br/>");
@@ -1167,6 +1184,13 @@ require_once('playsheet-ajax.php');
 
 <div id='highlightoverlay'></div>
 
+<script type="text/javascript" src="./js/playsheet-functions.js"></script> 
+<script type="text/javascript" src="./js/playsheet-setup.js"></script> 
+<script type="text/javascript" src="./js/playsheet-initialize.js"> </script>
+<script type="text/javascript">
+var enabled = {};
+enabled = <?php echo json_encode($enabled);?>;
+</script>
 </body>
 
 <?php

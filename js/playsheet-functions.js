@@ -78,7 +78,7 @@
 					
 				$.ajax({
 					type:"POST",
-					url: "form-handlers/futureAdLoader.php",
+					url: "form-handlers/show_info_loader.php",
 					data: {"showid":targetShow, "unixTime":targetShowUnix, "psid":playsheetID},
 					dataType: "json"
 				}).success(function(text) {
@@ -221,9 +221,23 @@
 			debug.prepend('just refreshed row ids <br/>');	
 	}
 	
+function showStatus(status, delay){
+		$('#ps_status').remove();
+		$('body').append('<div id="ps_status" >'+status+'</div>');
+
+		if(delay){
+			setTimeout(function(){
+					$('#ps_status').remove();
+				},
+				4000);
+		}
+	}
+	
 	function autosave(){
+
 		$('#star').val(0);
 		$('#autosaver').css('background-color','lightblue');
+		showStatus('saving... please wait', false);
 		console.log('autosaving');	
 		$('#status').val(1);
 		playsheetID = parseInt($hiddenInput.attr('value'),10);
@@ -233,11 +247,17 @@
 					console.log('playsheet id is '+ playsheetID);
 		
 		if(playsheetID === 0){
+
+
 					$('#playsheetForm').ajaxSubmit( function(){
+
 						$hiddenInput.load('getLatestPlaysheetID.php', function(){
+
 							$hiddenInput.attr('value',$hiddenInput.text());
 							});	
+
 						$('#autosaver').removeAttr('style');
+						showStatus('draft saved', true);
 						$('#draft').html('(draft)');
 						});	
 		}
@@ -246,6 +266,7 @@
 			console.log('an existing playsheet');
 			$('#playsheetForm').ajaxSubmit( function(){
 				$('#autosaver').removeAttr('style');
+				showStatus('draft saved', true);
 				$('#draft').html('(draft)');
 			}
 			);	
@@ -272,16 +293,6 @@
 					// disable future hoverovers in the same region
 				}
 	
-	function updateCCcolour(){
-				// $('.playsheetRow').each( function(actualRowNum){
-			
-				// if( $("#cc"+actualRowNum).prop("checked"))
-				// { $(this).css("background-color","#BB0000");	}
-				// else
-				// { $(this).css("background-color","#333399");}
-			
-			// });
-			}
 	
 	function refreshRows(){
 				refreshRowIDs();	
@@ -535,12 +546,8 @@
 		
 		if ( songCategory.indexOf("ategory") !== -1){ // only if the string contains 'ategory' (don't want to worry about capital C or not
 			songCategory = songCategory.replace(/\D/g,''); // strip all non numeric digits
-			
 			setCRTC(songCategory,tempRowNum);
-			
 		} 
-		
-	
 }
 
 	function loadTheRange(){

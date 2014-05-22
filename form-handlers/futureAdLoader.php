@@ -2,6 +2,7 @@
 
 require_once('../headers/db_header.php');
 require_once('../headers/showlib.php');
+require_once('../headers/config.php');
 require_once('../adLib.php');
 
 $showlib = new Showlib($db);
@@ -51,7 +52,7 @@ foreach( $showsInDay as $betterBlock ){
 		$end_hour = sprintf('%02d', $end_info['hours']);
 		$end_min = sprintf('%02d', $end_info['minutes']);
 		
-		$ads = $adLib->generateTable($start_unix,'dj');
+		$ads = $adLib->generateTable($start_unix,'dj',$betterBlock);
 		
 		$crtc = $betterBlock['show_obj']->crtc_default;
 		$lang = $betterBlock['show_obj']->lang_default;
@@ -96,7 +97,8 @@ echo json_encode(array(
 				'host'=>'',
 				'crtc'=>'',
 				'lang'=>'',
-				'ads'=>''
+				'ads'=>'',
+				'showID'=>''
 				));
 }
 
