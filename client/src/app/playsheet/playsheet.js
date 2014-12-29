@@ -87,6 +87,16 @@ angular.module('djLand.playsheet', [
       $scope.samVisible = false;
       $scope.id = 12345; // hard coded id
       $scope.loadPlaysheet = function() {
+
+
+
+        $http.get('../../server/api/show/list')
+            .success(function(data,status,headers,config){
+
+              $scope.active_shows = angular.fromJson(data);
+
+            });
+
         $http.get('../../server/api/playsheet/'+$scope.id)
             .success(function(data, status, headers, config){
               $scope.status = 'success';
@@ -99,13 +109,15 @@ angular.module('djLand.playsheet', [
               $scope.date = time;
               $scope.language = 'eng';
               $scope.crtc = 30;
-              $scope.active_shows = [
 
-                {id:124, name:"Radio No Jikan", host:"radio no jikan host"},
-                {id:103, name:"Rocket From Russia", host:"tim"},
-                {id:128, name:"Duncan's Donuts", host:"duncan"},
-                {id:154, name:"Exploding Head Movies", host:"GAK"}
-              ];
+
+
+
+
+
+
+
+
 
               $scope.play_items = angular.fromJson(data);
               $scope.totals = {cancon2:0,cancon3:0,hits:0,femcon:0,nu:0};
@@ -209,8 +221,8 @@ angular.module('djLand.playsheet', [
 
       };
 
-      $scope.loadSAM();
-      $window.setInterval($scope.loadSAM, 25000);
+//      $scope.loadSAM();
+//      $window.setInterval($scope.loadSAM, 25000);
 
       // DATE STUFF (faking knowing the start of current episode
 
