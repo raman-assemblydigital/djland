@@ -1,0 +1,20 @@
+
+<div ng-controller="showCtrl" class="form_wrap">
+  <button ng-click="editing = true;">click to edit</button>
+  <button ng-click="save(); editing = false;" ng-hide="!editing">save info (tba)</button>
+  <h3> {{showData.name}}</h3>
+  Description:<br/>
+  <textarea class="description" ng-model="showData.description" ng-readonly="!editing">
+  </textarea><br/>
+
+  genre:<br/>
+  <input ng-model="showData.genre" ng-readonly="!editing">
+  </input><br/>
+
+  website:<br/>
+  <input ng-model="showData.website" ng-readonly="!editing">
+  </input><br/>
+
+
+
+</div>

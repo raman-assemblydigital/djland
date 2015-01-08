@@ -1,1 +1,18 @@
-{"id":124,"name":"Radio No Jikan","host":"Bianca and Chika"}
+{"id":124,
+"name":"Radio No Jikan",
+"host":"Bianca and Chika",
+"description":"We will be talking about anything and everything Japanese, accompanied by well, Japanese music (no duh!).",
+"genre": "Japanese Music and Culture",
+"website": "https://www.facebook.com/radionojikan",
+"language": "Japanese",
+"crtc":30,
+"times":
+[{"start_day":4,
+"start_time":"11:00:00",
+"end_day":4,
+"end_time":"12:00:00"}],
+"social":
+[{"facebook":"facebook.com"},
+{"twitter":"twitter.ca"}]
+}
+

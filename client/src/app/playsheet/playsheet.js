@@ -2,18 +2,33 @@ angular.module('djLand.playsheet', [
   'ui.router',
   'placeholders',
   'ui.bootstrap',
-  'ui.sortable'
+  'ui.sortable',
+  'podcastEpisode'
 ])
     .config(function($stateProvider) {
-      $stateProvider.state( 'playsheet', {
-        url: '/playsheet',
-        views: {
-          "main": {
-            controller: 'playsheetCtrl',
-            templateUrl: 'playsheet/playsheet.tpl.html'
-          }
-        },
-        data:{ pageTitle: 'new playsheet' }
+      $stateProvider
+
+          .state( 'playsheet', {
+          url: '/playsheet',
+          views: {
+              "main": {
+                  controller: 'playsheetCtrl',
+                  templateUrl: 'playsheet/playsheet.tpl.html'
+              }
+          },
+          data:{ pageTitle: 'new playsheet' }
+      })
+
+
+          .state( 'editplaysheet', {
+          url: '/playsheet',
+          views: {
+              "main": {
+                  controller: 'playsheetCtrl',
+                  templateUrl: 'playsheet/playsheet.tpl.html'
+              }
+          },
+          data:{ pageTitle: 'new playsheet' }
       });
 //      $stateProvider.html5Mode({enabled:true,requireBase:false});
 
@@ -82,74 +97,65 @@ angular.module('djLand.playsheet', [
       };
     }])
 
-    .controller('playsheetCtrl', ['$scope','$filter','$http', '$location', '$window',function($scope, $filter, $http, $location, $window) {
-      $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-      $scope.samVisible = false;
-      $scope.id = 12345; // hard coded id
-      $scope.loadPlaysheet = function() {
+    .controller('playsheetCtrl', ['$scope','$filter','$http', '$location', '$window', 'userService','showService','stationDataService', 'playsheetService', function($scope, $filter, $http, $location, $window,userService,showService,stationDataService, playsheetService) {
+//      $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
 
+        $scope.playsheet = {};
+        $scope.id = 12345; // hard coded id // TODO: make this in URL (REST style)
 
+        userService.getUserData().then(function(userData){
+            $scope.userData = userData;
 
-        $http.get('../../server/api/show/list')
-            .success(function(data,status,headers,config){
-
-              $scope.active_shows = angular.fromJson(data);
-
+            showService.getShowData(userData.show_id).then(function(showData){
+                $scope.showData = showData;
+                $scope.playsheet.language = showData.language;
+                $scope.playsheet.crtc = showData.crtc;
+                $scope.playsheet.host = showData.host;
+                $scope.playsheet.showid = showData.id;
             });
+        });
 
-        $http.get('../../server/api/playsheet/'+$scope.id)
-            .success(function(data, status, headers, config){
-              $scope.status = 'success';
+        stationDataService.getActiveShows().then(function(data){
+            $scope.active_shows = data;
+        });
 
-              $scope.status = 'complete';
+        playsheetService.getPlaysheetData($scope.id).then(function(data){
 
-              time = new Date();
-              $scope.time = time.getTime() / 1000;
-              $scope.type = 'live';
-              $scope.date = time;
-              $scope.language = 'eng';
-              $scope.crtc = 30;
+            $scope.playsheet = data;
 
 
+            $scope.samVisible = false;
+            $scope.totals = {cancon2:0,cancon3:0,hits:0,femcon:0,nu:0};
 
 
-
-
-
-
-
-
-              $scope.play_items = angular.fromJson(data);
-              $scope.totals = {cancon2:0,cancon3:0,hits:0,femcon:0,nu:0};
-
-              $scope.$watch('play_items', function(){
+            $scope.$watch('playsheet.plays', function(){
                 var newTotals = {cancon2:0,cancon3:0,hits:0,femcon:0,nu:0};
-                var num = $scope.play_items.length;
+                var num = $scope.playsheet.plays.length;
                 var num_20 = 0;
                 var num_30 = 0;
                 for(var i=0; i < num; i++){
-                  if ($scope.play_items[i].nu) {
-                    newTotals.nu++;
-                  }
-                  if ($scope.play_items[i].cancon && $scope.play_items[i].crtc == 20) {
-                    newTotals.cancon2++;
-                  }
-                  if ($scope.play_items[i].cancon && $scope.play_items[i].crtc == 30) {
-                    newTotals.cancon3++;
-                  }
-                  if ($scope.play_items[i].femcon) {
-                    newTotals.femcon++;
-                  }
-                  if ($scope.play_items[i].hit) {
-                    newTotals.hits++;
-                  }
+                    if ($scope.playsheet.plays[i].nu) {
+                        newTotals.nu++;
+                    }
+                    if ($scope.playsheet.plays[i].cancon && $scope.playsheet.plays[i].crtc == 20) {
+                        newTotals.cancon2++;
+                    }
+                    if ($scope.playsheet.plays[i].cancon && $scope.playsheet.plays[i].crtc == 30) {
+                        newTotals.cancon3++;
+                    }
+                    if ($scope.playsheet.plays[i].femcon) {
+                        newTotals.femcon++;
+                    }
+                    if ($scope.playsheet.plays[i].hit) {
+                        newTotals.hits++;
+                    }
 
-                  if($scope.play_items[i].crtc == 20) {
-                    num_20++;
-                  }
-                  if($scope.play_items[i].crtc == 30) {
-                    num_30++;
-                  }
+                    if($scope.playsheet.plays[i].crtc == 20) {
+                        num_20++;
+                    }
+                    if($scope.playsheet.plays[i].crtc == 30) {
+                        num_30++;
+                    }
                 }
 
 
@@ -159,117 +165,131 @@ angular.module('djLand.playsheet', [
                 newTotals.hits = 100.00* newTotals.hits / num;
                 newTotals.nu = 100.00* newTotals.nu / num;
                 $scope.totals = newTotals;
-              }, true);
+            }, true);
+            $scope.add = function(id){
+                $scope.playsheet.plays.splice(id+1,0,{ artist:'', album:'', song:'', nu:false,cancon:false,femcon:false,instrumental:false,partial:false,hit:false,crtc:$scope.playsheet.crtc,language:$scope.playsheet.language});
 
+                for(var i=0; i < $scope.playsheet.plays.length; i++){
+                    $scope.playsheet.plays[i].id = i;
+                }
 
+            };
 
+            $scope.remove = function(id){
+                $scope.playsheet.plays.splice(id,1);
 
+                for(var i=0; i < $scope.playsheet.plays.length; i++){
 
-            }).error(function(data,status,headers,config){
+                }
+            };
 
-            });
-      };
-      $scope.loadPlaysheet();
+            $scope.sam_add = function(sam){
+                $scope.playsheet.plays.push(angular.copy(sam));
+            };
+           // end of after() function for getting playsheet data
+        });
 
-      $scope.add = function(id){
-        $scope.play_items.splice(id+1,0,{ artist:'', album:'', song:'', nu:false,cancon:false,femcon:false,instrumental:false,partial:false,hit:false,crtc:$scope.crtc,language:$scope.language});
+        $scope.loadSAM = function(limits){
+            console.log('trying to load new sams');
 
-        for(var i=0; i < $scope.play_items.length; i++){
-          $scope.play_items[i].id = i;
-        }
+            $http.get('/samJSON.php')
+                .success(function(data, status, headers, config){
+                    data = angular.fromJson(data);
+                    console.log(data);
+                    var samRecent = [];
+                    for (var i = 0; i< data.length; i++){
+                        samRecent.push({
+                            artist:data[i].artist,
+                            album:data[i].album,
+                            song:data[i].title,
+                            nu:false,
+                            cancon:data[i].cancon,
+                            femcon:data[i].femcon,
+                            instrumental: false,
+                            partial:false,
+                            hit:false,
+                            crtc:$scope.crtc,
+                            language:$scope.language
+                        });
+                    }
+                    $scope.samRecent = samRecent;
 
-      };
-
-      $scope.remove = function(id){
-        $scope.play_items.splice(id,1);
-
-        for(var i=0; i < $scope.play_items.length; i++){
-
-        }
-      };
-
-      $scope.sam_add = function(sam){
-        $scope.play_items.push(angular.copy(sam));
-      };
-
-      $scope.loadSAM = function(limits){
-        console.log('trying to load new sams');
-
-        $http.get('/samJSON.php')
-            .success(function(data, status, headers, config){
-              data = angular.fromJson(data);
-              console.log(data);
-              var samRecent = [];
-              for (var i = 0; i< data.length; i++){
-                samRecent.push({
-                  artist:data[i].artist,
-                  album:data[i].album,
-                  song:data[i].title,
-                  nu:false,
-                  cancon:data[i].cancon,
-                  femcon:data[i].femcon,
-                  instrumental: false,
-                  partial:false,
-                  hit:false,
-                  crtc:$scope.crtc,
-                  language:$scope.language
                 });
-              }
-              $scope.samRecent = samRecent;
 
-            });
+        };
 
-      };
 
-//      $scope.loadSAM();
-//      $window.setInterval($scope.loadSAM, 25000);
+        // DATE STUFF (faking knowing the start of current episode
 
-      // DATE STUFF (faking knowing the start of current episode
+        var now = new Date();
+        var later = new Date();
+        later.setHours(now.getHours() + 1);
+        now.setMinutes(0);
+        later.setMinutes(0);
+        now.setSeconds(0);
+        later.setSeconds(0);
+        now = now.getTime() ;
+        later = later.getTime() ;
+        $scope.startDate = now;
+        $scope.endDate = later;
+        $scope.persistent_date = {};
 
-      var now = new Date();
-      var later = new Date();
-      later.setHours(now.getHours() + 1);
-      now.setMinutes(0);
-      later.setMinutes(0);
-      now.setSeconds(0);
-      later.setSeconds(0);
-      now = now.getTime() ;
-      later = later.getTime() ;
-      $scope.startDate = now;
-      $scope.endDate = later;
-      $scope.persistent_date = {};
+        $scope.persistent_date.start = now;
+        $scope.persistent_date.duration = 60*60;
 
-      $scope.persistent_date.start = now;
-      $scope.persistent_date.duration = 60*60;
+        $scope.episode = {
+            title:'han solo',
+            subtitle:'new subtitle',
+            summary:'new summary',
+            active:'1',
+            date_unix: $scope.startDate/1000,
+            duration: $scope.persistent_date.duration
 
-      $scope.episode = {
-        title:'han solo',
-        subtitle:'new subtitle',
-        summary:'new summary',
-        active:'1',
-        date_unix: $scope.startDate/1000,
-        duration: $scope.persistent_date.duration
-
-      };
+        };
 
 // angular should be able to do this a better way... but here is manually updating date across scopes
 //
-      $scope.$watch('episode.start_obj', function(){
-        $scope.startDate = $scope.episode.start_obj;
-      });
-      $scope.$watch('episode.end_obj', function(){
+        $scope.$watch('episode.start_obj', function(){
+            $scope.startDate = $scope.episode.start_obj;
+        });
+        $scope.$watch('episode.end_obj', function(){
 
-        $scope.endDate = $scope.episode.end_obj;
-      });
+            $scope.endDate = $scope.episode.end_obj;
+        });
 
 
-
+        $scope.varshidden=true;
     }])
-    .controller('playsheetRowsCtrl', ['$scope','$filter', function($scope, $filter) {
-      $scope.play_items = $scope.$parent.play_items;
-
-
-
+    .controller('newPlaysheet', ['$scope','$controller', function($scope, $controller) {
+//      $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+        $controller('playsheetCtrl', {$scope:$scope});
+    }])
+    .controller('Playsheet', ['$scope','$controller', function($scope, $controller) {
+//      $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+        $controller('playsheetCtrl', {$scope:$scope});
     }])
     .value('channel_id',124)
-    .value('timezone_offset',-28800);
+    .value('timezone_offset',-28800)
+
+
+
+.factory('episodeNum', ['$filter', function($filter) {
+  return {
+    url: function(date, end) {
+
+
+      console.warn(date);
+
+      var start_ = $filter('date')(date.getTime(),'dd-MM-yyyy HH:mm:ss');
+      var end_ = $filter('date')(end.getTime(),'dd-MM-yyyy HH:mm:ss');
+
+      console.warn(start_);
+
+      return 'http://archive.citr.ca/py-test/archbrad/download?'+
+          'archive=%2Fmnt%2Faudio-stor%2Flog'+
+          '&startTime='+start_+
+          '&endTime='+end_;
+
+    }
+  };
+}]);

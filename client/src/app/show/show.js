@@ -1,24 +1,24 @@
-angular.module('djLand.podcast', [
+angular.module('djLand.show', [
   'ui.router',
   'placeholders',
   'ui.bootstrap'
 ])
     .config(function($stateProvider) {
-      $stateProvider.state( 'podcast', {
-        url: '/podcast',
+      $stateProvider.state( 'show', {
+        url: '/show',
         views: {
           "main": {
-            controller: 'podcastCtrl',
-            templateUrl: 'podcast/podcast.tpl.html'
+            controller: 'showCtrl',
+            templateUrl: 'show/show.tpl.html'
           }
         },
-        data:{ pageTitle: 'new podcast' }
+        data:{ pageTitle: 'edit show' }
       });
 //      $stateProvider.html5Mode({enabled:true,requireBase:false});
 
     })
 
-    .controller('podcastCtrl', ['$scope','$filter',function($scope, $filter) {
+    .controller('showCtrl', ['$scope','userService','showService',function($scope, userService, showService){
         userService.getUserData().then(function(userData){
             $scope.userData = userData;
 
@@ -27,10 +27,10 @@ angular.module('djLand.podcast', [
             });
         });
 
+      $scope.editing = false;
 
-        console.info('hi from podcast controller');
-        var something = 'abcdef';
+    }])
 
+//
 
-
-    }]);
+;

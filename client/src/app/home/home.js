@@ -37,7 +37,14 @@ angular.module( 'djLand.home', [
 /**
  * And of course we define a controller for our route.
  */
-.controller( 'HomeCtrl', function HomeController( $scope ) {
+.controller( 'HomeCtrl', function HomeController( $scope, userService, showService ) {
+      userService.getUserData().then(function(userData){
+        $scope.userData = userData;
+
+        showService.getShowData(userData.show_id).then(function(showData){
+          $scope.showData = showData;
+        });
+      });
 })
 
 ;

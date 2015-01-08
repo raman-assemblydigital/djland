@@ -111,7 +111,45 @@ h2 {
   }
 }
 
+textarea.description, textarea.summary{
+  width:80%;
+  min-height:200px;
+  margin-top:5px;
+  margin-bottom:5px;
+  overflow: auto;
+}
 
+.form_wrap input{
+  width:80%;
+}
+
+pre.vars{
+  position:fixed;
+  top:0;
+  right:0;
+  width:600px;
+  height:60%;
+  overflow: scroll;
+  font-size:0.7em;
+}
+
+div#left{
+  width:40%;
+  height:auto;
+  float:left;
+
+}
+div#right{
+  width:40%;
+  height:auto;
+  float:right;
+
+}
+
+div.playsheet_block{
+  height:auto;
+
+}
 /**
  * Now that all app-wide styles have been applied, we can load the styles for
  * all the submodules and components we are using. 

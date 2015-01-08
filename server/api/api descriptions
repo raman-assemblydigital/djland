@@ -1,0 +1,22 @@
+api/playsheet/[playsheet id#]         playsheet data for an already submitted playsheet
+api/playsheets/[show id#]			list of playsheets for given show id #
+
+api/show/[id#]              show info for specified id
+
+api/show/list/active        a list of all active shows
+api/show/list/inactive      a list of all inactive shows
+api/show/list/all           a list of all shows, active or inactive
+
+api/userinfo                user info - including username, type (for permissions)
+
+auth                        send login credentials here to get token
+                            token validation
+
+more to come...
+
+
+
+
+possible endpoints to consider
+api/playsheet/next/[show#]  playsheet data for the next slot of a given show id (includes projected start, end times, and advertisement schedule if present)
+api/playsheet/current/[show#]        playsheet data for the last

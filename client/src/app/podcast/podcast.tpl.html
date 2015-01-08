@@ -1,1 +1,19 @@
 <h3>podcast</h3>
+
+<div ng-repeat="">
+
+
+
+</div>
+
+
+<div ng-controller='episodeCtrl' ng-repeat="episode in episodes" class=episode >
+    <ng-include src="'podcasting/podcast-episode.html'">
+
+    </ng-include>
+    duration: {{episode.duration}}<br/>
+
+    episode start obj: {{episode.start_obj | date: 'medium'}}<br/>
+    episode end obj: {{episode.end_obj | date: 'medium'}}<br/>
+    episode duration: {{episode.duration | date: 'medium'}}<br/><br/><br/>
+</div>

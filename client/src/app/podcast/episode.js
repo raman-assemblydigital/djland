@@ -1,9 +1,10 @@
 // this is only used by playsheet editor.  episode control is duplicated for the multi-episode channel editor
-/*
 
-angular.module('djLand.episode',['soundManager'])
+angular.module('podcastEpisode',['soundManager'])
     .controller('episodeCtrl', ['$scope', '$http', '$filter', 'archiveService', 'channel_id', function($scope, $http, $filter, archiveService, channel_id){
 
+        console.info('hello');
+        $scope.something = 'abcde';
         $scope.editing = true;
         $scope.episode = $scope.$parent.episode;
 
@@ -74,8 +75,7 @@ angular.module('djLand.episode',['soundManager'])
             useConsole:false,
             autoLoad:true,
             multiShot:false,
-            stream:true*/
-/*,
+            stream:true/*,
              onplay: function(){
              for (var i = 0; i< soundManager.soundIDs.length ; i++){
              var soundID = soundManager.soundIDs[i];
@@ -84,14 +84,12 @@ angular.module('djLand.episode',['soundManager'])
              console.warn('stopped playing sound id '+soundID);
              }
              }
-             }*//*
-
+             }*/
         };
 
         soundManager.setup({
             debugMode:true,
-            useConsole:true*/
-/*
+            useConsole:true/*,
              onready:function(){
 
              var music_url = episode.url;
@@ -106,8 +104,7 @@ angular.module('djLand.episode',['soundManager'])
              },
              ontimeout: function() {
              console.error('Soundmanager init failed!');
-             }*//*
-
+             }*/
 
         });
 
@@ -166,6 +163,7 @@ angular.module('djLand.episode',['soundManager'])
         return {
             url: function(date, end) {
 
+
                 console.warn(date);
 
                 var start_ = $filter('date')(date.getTime(),'dd-MM-yyyy HH:mm:ss');
@@ -191,4 +189,3 @@ angular.module('soundManager',[])
             }
         };
     }]);
-*/

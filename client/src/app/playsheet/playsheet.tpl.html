@@ -131,7 +131,8 @@
 
     .music_row{
 
-      width:990px;
+      width:990px;/*
+      background-color:rgba(150,150,150,0.8);*/
     }
 
     .music_row, .music_row *{
@@ -179,7 +180,17 @@
     input{
 
       display:inline;
-      width:auto;}
+      width:auto;
+    }
+
+    .music_li{
+      background-color:pink;
+      width:100%;
+    }
+
+    .playsheet_block{
+      width:1000px;
+    }
 
   </style>
 
@@ -193,68 +204,90 @@
     <div ng-controller='playsheetCtrl as playsheet'>
 
       <form id="playsheet" ng-submit="playsheet.$valid && submit.submit()">
-        <h2>Playsheet Editor (angular)</h2>
-        <br/>Playsheet Type: <select ng-model="type">
-        <option value="syndicated">syndicated</option>
-        <option value="live">live</option>
-        <option value="rebroadcast">rebroadcast</option>
-        <option value="simulcast">simulcast</option>
-      </select>
-        <br/>Show:   <select ng-model="active_show" ng-options="show as show.name for show in active_shows">
-        <!--                    <option value="{{show.id}}" ng-repeat="show in active_shows">{{show.name}}</option></ng-repeat>-->
-      </select>
 
+        <h2>New Playsheet</h2>
+
+        <div class="playsheet_block">
+          <h3>Episode Data</h3>
+          <div id="left">
+          Playsheet Type: <select ng-model="playsheet.type">
+          <option value="syndicated">syndicated</option>
+          <option value="live">live</option>
+          <option value="rebroadcast">rebroadcast</option>
+          <option value="simulcast">simulcast</option>
         </select>
+          <br/>Show:
+          <select ng-model="playsheet.showid">
+          <!--ng-options="show as show.name for show in active_shows"-->
+              <option value="{{showData.id}}" ng-selected>{{showData.name}}</option>
+              <option value="{{show.id}}" ng-repeat="show in active_shows">{{show.name}}</option></ng-repeat>
 
-        <!--    <br/>Date:   <button >{{date | date: 'mediumDate'}}</button> (click to change)
-            <br/>Time:   <span ng-controller="timepicker" class="timepicker">
-                                <timepicker ng-model="date" ></timepicker>
-                        </span>-->
-        <br/>Host: <input ng-model="active_show.host" ></input>
-        <br/>Language: <input ng-model="language"></input>
-        <br/>CRTC Category: <span class="crtc" ng-model="crtc" ng-click="crtc == 30? crtc = 20 : crtc = 30;">{{crtc}}</span>
+          </select>
 
+          <!--    <br/>Date:   <button >{{date | date: 'mediumDate'}}</button> (click to change)
+              <br/>Time:   <span ng-controller="timepicker" class="timepicker">
+                                  <timepicker ng-model="date" ></timepicker>
+                          </span>-->
+          <br/>Host: <input ng-model="playsheet.host" ></input>
+          <br/>Language: <input ng-model="playsheet.language"></input>
+          <br/>CRTC Category: <span class="crtc" ng-model="playsheet.crtc" ng-click="playsheet.crtc == 30? playsheet.crtc = 20 : playsheet.crtc = 30;">{{playsheet.crtc}}</span>
+          </div>
+          <div id="right">
 
-
-        <h3>Music</h3>
-        <!--    <div ng-controller="playsheetRowsCtrl as rows" >-->
-
-        <div class="music_row_heading music_row" >
-          <input value="artist" class="music" readonly></input> &nbsp; <input value="album" class="music" readonly></input> &nbsp; <input value="song" class="music" readonly></input>
-          &nbsp;&nbsp;
-          <span class="box new filled">&nbsp;</span>
-          <span class="box cancon filled" ">&nbsp;</span>
-          <span class="box femcon filled"  >&nbsp;</span>
-          <span class="box instrumental filled" >&nbsp;</span>
-          <span class="box partial filled" >&nbsp;</span>
-          <span class="box hit filled" >&nbsp;</span>
-          <span class="crtc"> crtc </span>
-          <input class="lang" value="language"></input>
-          <button class="tools" >+</button>
-          <button class="tools" >-</button>
-
-          <!--</div>-->
+            Date: {{episode.start_obj | date: 'mediumDate'}}<br/>
+            Start Time: {{episode.start_obj | date: 'mediumTime'}}<br/>
+            End Time: {{episode.end_obj | date: 'mediumTime'}}<br/>
+            <button ng-click="edit">change date</button>
+          </div>
         </div>
+        <br/><br/><br/>
+        <br/><br/><br/><br/><br/>
 
-        <ul ui-sortable ng-model="play_items">
-          <li ng-repeat="row in play_items track by $index">
-            <div class="music_row" >
-              <input ng-model="row.artist" class="music" required="true"></input> - <input ng-model="row.album" class="music" required="true"></input> - <input ng-model="row.song" class="music" required="true"></input>
-              <span class="box new" ng-model="row.nu" ng-class="{filled: row.nu}" ng-click="row.nu = !row.nu;" >&nbsp;</span>
-              <span class="box cancon" ng-model="row.cancon" ng-class="{filled: row.cancon}" ng-click="row.cancon = !row.cancon;">&nbsp;</span>
-              <span class="box femcon" ng-model="row.femcon" ng-class="{filled: row.femcon}" ng-click="row.femcon = !row.femcon;">&nbsp;</span>
-              <span class="box instrumental" ng-model="row.instrumental" ng-class="{filled: row.instrumental}" ng-click="row.instrumental = !row.instrumental;">&nbsp;</span>
-              <span class="box partial" ng-model="row.partial" ng-class="{filled: row.partial}" ng-click="row.partial = !row.partial;">&nbsp;</span>
-              <span class="box hit" ng-model="row.hit" ng-class="{filled: row.hit}" ng-click="row.hit = !row.hit;">&nbsp;</span>
-              <span class="crtc" ng-model="row.crtc" ng-click="row.crtc == 30? row.crtc = 20 : row.crtc = 30;">{{row.crtc}}</span>
-              <input class="lang" ng-model="row.language"></input>
-              <span class="tools" ng-click="add($index)" >&nbsp;+&nbsp;</span>
-              <span class="tools" ng-click="remove($index)">&nbsp;-&nbsp;</span>
+    <div class="playsheet_block">
+            <h3>Music</h3>
+            <!--    <div ng-controller="playsheetRowsCtrl as rows" >-->
+
+            <div class="music_row_heading music_row" >
+              <input value="artist" class="music" readonly></input> &nbsp; <input value="album" class="music" readonly></input> &nbsp; <input value="song" class="music" readonly></input>
+              &nbsp;&nbsp;
+              <span class="box new filled">&nbsp;</span>
+              <span class="box cancon filled" ">&nbsp;</span>
+              <span class="box femcon filled"  >&nbsp;</span>
+              <span class="box instrumental filled" >&nbsp;</span>
+              <span class="box partial filled" >&nbsp;</span>
+              <span class="box hit filled" >&nbsp;</span>
+              <span class="crtc"> crtc </span>
+              <input class="lang" value="language"></input>
+              <button class="tools" >+</button>
+              <button class="tools" >-</button>
 
               <!--</div>-->
             </div>
-          </li>
-        </ul>
+
+            <ul ui-sortable ng-model="playsheet.plays">
+              <li ng-repeat="row in playsheet.plays track by $index" class="music_li">
+                <div class="music_row" >
+                  <input ng-model="row.artist" class="music" required="true"></input> - <input ng-model="row.album" class="music" required="true"></input> - <input ng-model="row.song" class="music" required="true"></input>
+                  <span class="box new" ng-model="row.nu" ng-class="{filled: row.nu}" ng-click="row.nu = !row.nu;" >&nbsp;</span>
+                  <span class="box cancon" ng-model="row.cancon" ng-class="{filled: row.cancon}" ng-click="row.cancon = !row.cancon;">&nbsp;</span>
+                  <span class="box femcon" ng-model="row.femcon" ng-class="{filled: row.femcon}" ng-click="row.femcon = !row.femcon;">&nbsp;</span>
+                  <span class="box instrumental" ng-model="row.instrumental" ng-class="{filled: row.instrumental}" ng-click="row.instrumental = !row.instrumental;">&nbsp;</span>
+                  <span class="box partial" ng-model="row.partial" ng-class="{filled: row.partial}" ng-click="row.partial = !row.partial;">&nbsp;</span>
+                  <span class="box hit" ng-model="row.hit" ng-class="{filled: row.hit}" ng-click="row.hit = !row.hit;">&nbsp;</span>
+                  <span class="crtc" ng-model="row.crtc" ng-click="row.crtc == 30? row.crtc = 20 : row.crtc = 30;">{{row.crtc}}</span>
+                  <input class="lang" ng-model="row.language"></input>
+                  <span class="tools" ng-click="add($index)" >&nbsp;+&nbsp;</span>
+                  <span class="tools" ng-click="remove($index)">&nbsp;-&nbsp;</span>
+                  <span class="dragzone">: :</span>
+
+                  <!--</div>-->
+                </div>
+              </li>
+            </ul>
+
+
+    </div>
+
 
       </form>
 
@@ -268,7 +301,7 @@
         <div>Cancon 3:<span class='req' ng-class="totals.cancon3 > 12.00 ? 'good': 'bad'; "> {{totals.cancon3 | number : 0.00}}%</span> (min 12%)</div>
         <div>Hits:<span class='req' ng-class="totals.hits < 10.00 ? 'good': 'bad'; "> {{totals.hits | number : 0.00}}%</span> (max 10%)</div>
         <div>Femcon:<span class='req' ng-class="totals.femcon > 35.00 ? 'good': 'bad'; "> {{totals.femcon | number : 0.00}}%</span> (min 35%)</div>
-        <div>New:<span class='req' ng-class="totals.new > 15.00 ? 'good': 'bad'; "> {{totals.new | number : 0.00}}%</span> (min 15%)</div>
+        <div>New:<span class='req' ng-class="totals.nu > 15.00 ? 'good': 'bad'; "> {{totals.nu | number : 0.00}}%</span> (min 15%)</div>
       </div>
 
       <div id="sam_picker" ng-show="samVisible">
@@ -277,42 +310,23 @@
 
 
       <hr/>
-      live variables view:
-        <pre>
-            status:     {{status}}
-            time:       {{time}}
-            type:       {{type}}
-            show id:    {{active_show.id}}
-            host:       {{active_show.host}}
-            language:   {{language}}
-            crtc:       {{crtc}}
-            playsheet id: {{id}}
-            startDate:       {{startDate | date: 'medium'}}
-            endDate:       {{endDate | date: 'medium'}}
-            persistent_date: {{persistent_date}}
 
-            samRecent:  <span ng-repeat="recent in samRecent">
-                                <span ng-repeat="(key,value) in recent" >{{key}}: {{value}} | </span><br/>
-                        </span>
+        <pre class="vars" ng-hide="varshidden">
+      live variables view: <button ng-click="varshidden=true;">go away</button>
+          <hr/><span ng-repeat="play in playsheet.plays">{{play}}<br/></span>
 
-            playitems: <span ng-repeat="row in play_items track by $index">{{$index}}: {{row}}<br/></span>
-
-            shows: <span ng-repeat="show in active_shows">{{show}}<br/></span>
         </pre>
 
 
       <h3>Podcast</h3>
-      <!--
-      <div ng-controller='episodeCtrl as episode' class=episode >
-        <ng-include src="'podcast/new-episode.html'">
+        <div ng-controller='episodeCtrl as episode' >
+          something is {{episode.something}}
+          or  is {{something}}
+            <ng-include src="'podcast/new-episode.tpl.html'">
 
 
-        </ng-include>
-        episode start obj: {{episode.start_obj | date: 'medium'}}<br/>
-        episode end obj: {{episode.end_obj | date: 'medium'}}<br/>
-        episode duration: {{episode.duration | date: 'medium'}}<br/><br/><br/>
-      </div>
-      -->
+            </ng-include>
+        </div>
     </div>
 
 
