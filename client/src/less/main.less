@@ -113,8 +113,7 @@ h2 {
 
 textarea.description, textarea.summary{
   width:80%;
-  min-height:200px;
-  margin-top:5px;
+  min-height:120px;
   margin-bottom:5px;
   overflow: auto;
 }
@@ -131,6 +130,7 @@ pre.vars{
   height:60%;
   overflow: scroll;
   font-size:0.7em;
+  background-color:rgba(240,240,240,0.8);
 }
 
 div#left{
@@ -149,6 +149,82 @@ div#right{
 div.playsheet_block{
   height:auto;
 
+}
+span.box{
+  display:inline-block;
+  height:27px;
+  width:27px;
+  border-width:1px;
+  border-style:dotted;
+  cursor:default;
+  background-color:white;
+  background-size: 100%;
+  margin-bottom:2px;
+}
+
+
+span.box.new:hover{
+  background-image: url('images/pl.png');
+  opacity:0.5;
+}
+span.box.cancon:hover{
+  background-image: url('images/CAN.png');
+  opacity:0.5;
+}
+span.box.femcon:hover{
+  background-image: url('images/fe.png');
+  opacity:0.5;
+}
+span.box.instrumental:hover{
+  background-image: url('images/inst.png');
+  opacity:0.5;
+}
+span.box.hit:hover{
+  background-image: url('images/hit.png');
+  opacity:0.5;
+}
+span.box.partial:hover{
+  background-image: url('images/part.png');
+  opacity:0.5;
+}
+
+span.box.new.filled{
+  background-image: url('images/pl.png');
+  opacity:1;
+}
+span.box.cancon.filled{
+  background-image: url('images/cc.png');
+  opacity:1;
+}
+span.box.femcon.filled{
+  background-image: url('images/fe.png');
+  opacity:1;
+}
+span.box.instrumental.filled{
+  background-image: url('images/inst.png');
+  opacity:1;
+}
+span.box.hit.filled{
+  background-image: url('images/hit.png');
+  opacity:1;
+}
+span.box.partial.filled{
+  background-image: url('images/part.png');
+  opacity:1;
+}
+
+
+span.box{
+  background-color:transparent;
+  background-image: none;;
+}
+
+@font-face {
+  font-family: 'Glyphicons Halflings';
+  src: url('../assets/fonts/glyphicons-halflings-regular.eot');
+  src: url('../assets/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../assets/fonts/glyphicons-halflings-regular.woff') format('woff'), url('../assets/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('../assets/fonts/glyphicons-halflings-regular.svg#glyphicons-halflingsregular') format('svg');
+  src: url('../assets/fonts/glyphicons-halflings-regular.eot');
+  src: url('../assets/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../assets/fonts/glyphicons-halflings-regular.woff') format('woff'), url('../assets/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('../assets/fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
 }
 /**
  * Now that all app-wide styles have been applied, we can load the styles for

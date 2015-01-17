@@ -1,36 +1,21 @@
 // this is only used by playsheet editor.  episode control is duplicated for the multi-episode channel editor
 
 angular.module('podcastEpisode',['soundManager'])
+    .directive('podcastEditor', function(){
+        return {
+            restrict:'E',
+            scope: true,
+            templateUrl: 'podcast/new-episode.tpl.html'
+        };
+    })
     .controller('episodeCtrl', ['$scope', '$http', '$filter', 'archiveService', 'channel_id', function($scope, $http, $filter, archiveService, channel_id){
 
-        console.info('hello');
-        $scope.something = 'abcde';
-        $scope.editing = true;
-        $scope.episode = $scope.$parent.episode;
-
         var episode = $scope.episode;
-
-        episode.active = parseInt(episode.active,10);
-
-        episode.start_obj = new Date(episode.date_unix*1000);
-        episode.date = $filter('date')(episode.start_obj, 'medium');
-
-        episode.updateTimeObjs = function(){
-            var start = new Date(episode.date);
-            episode.date_unix = start.getTime() / 1000;
-            episode.start_obj = start;
-
-            var end = new Date(episode.date_unix*1000);
-            var end_seconds = end.getSeconds();
-            end.setSeconds(end_seconds + parseInt(episode.duration,10));
-            episode.end = $filter('date')(end, 'mediumTime');
-            episode.end_obj = end;
-
-        };
-        episode.updateTimeObjs();
-
         episode.archiveURL = archiveService.url(episode.start_obj, episode.end_obj);
 
+        $scope.printArchUrl = function(){
+            console.info('doohickey '+episode.archiveURL);
+        };
 
         $scope.editToggle = function(){
             $scope.editing = !$scope.editing;

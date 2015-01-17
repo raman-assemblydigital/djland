@@ -1,0 +1,97 @@
+
+<style type="text/css">
+        span.library_result{
+                display:block;
+                width: auto;
+        }
+        span.library_result:hover{
+                border-style:solid;
+                border-width:1px;
+                border-color:black;
+                cursor:default;
+        }
+
+        span.library_result.selected{
+                background-color: paleturquoise;
+        }
+
+        div#results_view{
+                width:50%;
+
+                margin:10px;
+                float:left;
+        }
+        div#edit_view{
+                width:45%;
+                float:left;
+
+                margin:10px;
+        }
+</style>
+
+        <h2>library</h2>
+
+        <input ng-model="term" placeholder="search for..." ng-change="search();"></input> <button ng-click="search(); term='';">show recent</button><br/>
+        <h4>Filters</h4>
+
+        <div id="filters">
+
+                Catalog:<input ng-model="filter.catalog"></input>
+                Format:<select ng-model="filter.format" ng-options="value for value in formatOptions"></select>
+                Status:<input ng-model="filter.status" width="50"></input><br/>
+
+                Artist:<input ng-model="filter.artist"></input>
+                Title:<input ng-model="filter.catalog"></input><br/>
+
+                Label:<input ng-model="filter.label"></input>
+                Genre:<input ng-model="filter.genre"></input><br/>
+
+                Added:<input ng-model="filter.added"></input>
+                Modified:<input ng-model="filter.modified"></input><br/>
+
+                Cancon:<input type="checkbox" ng-model="filter.cancon"></input>
+                Femcon:<input type="checkbox" ng-model="filter.femcon"></input>
+                Local:<input type="checkbox" ng-model="filter.local"></input>
+                Playlist:<input type="checkbox" ng-model="filter.playlist"></input>
+                Compilation:<input type="checkbox" ng-model="filter.compilation"></input>
+                in SAM:<input type="checkbox" ng-model="filter.digital"></input><br/>
+
+                Order by:<select ng-model="filter.order" ng-options="value for value in orderOptions"></select>
+                Descending:<input type="checkbox" ng-model="finter.descending"></input>
+        </div>
+
+        <hr>
+        <span ng-show="term"> results for "{{term}}"...</span><br/>
+
+        <div id="results_view">
+                <span class="library_result" ng-repeat="result in results" ng-click="setActive(result);" ng-class="{selected:result.isActive}">
+                        [{{result.catalog}}] |{{result.format}}| ({{result.artist}}) {{result.title}}
+                </span>
+        </div>
+
+        <div id="edit_view" ng-show="editVisible">
+
+                <h3>View Record</h3>
+
+                Catalog:<input ng-model="active.catalog" ng-readonly="!editing"></input>
+                Format:<select ng-model="active.format" ng-readonly="!editing" ng-options="value for value in formatOptions"></select><br/>
+                Status:<input ng-model="active.status" ng-readonly="!editing" width="50"></input><br/>
+
+                Artist:<input ng-model="active.artist" ng-readonly="!editing"></input><br/>
+                Title:<input ng-model="active.title" ng-readonly="!editing"></input><br/>
+
+                Label:<input ng-model="active.label" ng-readonly="!editing"></input><br/>
+                Genre:<input ng-model="active.genre" ng-readonly="!editing"></input><br/>
+
+                Cancon:<input type="checkbox" ng-model="active.cancon" ng-readonly="!editing" ></input>
+                Femcon:<input type="checkbox" ng-model="active.femcon"  ng-readonly="!editing"></input>
+                Local:<input type="checkbox" ng-model="active.local"  ng-readonly="!editing"></input>
+                Playlist:<input type="checkbox" ng-model="active.playlist"  ng-readonly="!editing"></input>
+                Compilation:<input type="checkbox" ng-model="active.compilation"  ng-readonly="!editing"></input>
+                in SAM:<input type="checkbox" ng-model="active.digital"  ng-readonly="!editing"></input><br/>
+                <button ng-click="editing=!editing;">edit</button>
+                <button ng-click="submit()" ng-show="editing">submit changes</button><br/><br/>
+                <button ng-click="delete()" ng-show="editing">delete record</button>
+        </div>
+
+

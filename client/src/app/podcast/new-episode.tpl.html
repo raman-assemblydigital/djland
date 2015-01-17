@@ -10,9 +10,6 @@
 
     }
 
-    .subtitle{
-        font-weight:bold;
-    }
     .episode{
         width:800px;
         padding-left:35px;
@@ -20,23 +17,13 @@
         border-width:1px 0px 0px 1px;
     }
 
-    .title{  margin-left:-15px;
-    }/*
+/*
     .episode_wrap input,textarea{
         border-style:solid;
         border-color:white;
         width:70%;
     }*/
 
-    input.editbutton{
-        width:auto;
-    }
-    .editing{
-        border-color:lightskyblue;
-        border-width:1px;
-        border-style:solid;
-        background-color:#eef6ff;
-    }
 
     .title-label{
         /*position:relative;*/
@@ -51,48 +38,41 @@
 
 
 <div class="episode_wrap form_wrap">
-    <i >title:</i>
-    <h3>
-        <input ng-model="episode.title" ng-readonly="!editing" ng-class="{editing: editing}" class="title"/> ({{episode.id}})
-        <!-- <button class='play_episode' ng-click="episode.sound.togglePause()">&#9658;/ &#10074;&#10074;</button>-->
-        <input type="button" ng-click="editToggle()" ng-class="{editing: editing}" value="edit" class="editbutton"> </input>
-        <button ng-click='save(episode)' ng-hide="!editing">save</button>
-        {{status}}
-    </h3>
-    <i >subtitle:<br/></i>
-    <input ng-model="episode.subtitle" ng-readonly="!editing" ng-class="{editing: editing}" class="subtitle"/><br/>
-    <i >description:<br/></i>
-    <textarea ng-model="episode.summary"
-              ng-readonly="!editing"
-              class='summary'
-              ng-class="{editing: editing}"
-              ng-show="(episode.summary != null) || (editing)">
-    </textarea>{{typeOf(episode.summary)}}<br/>
-    <div ng-hide="!editing" ng-class="{editing: editing}">
-        active: <input type="checkbox"
+    <h4>
+        <input ng-model="episode.title" class="title" placeholder="title"/>
+    </h4>
+    <input ng-model="episode.subtitle" class="subtitle" placeholder="subtitle"/>
+    <br/><br/>
+    <textarea ng-model="episode.summary" class='summary' placeholder="description"></textarea>
+    <br/>
+    active: <input type="checkbox"
                        ng-model="episode.active"
                        ng-true-value="1"
                        ng-false-value="0" editable=true/>
 
+    <select ng-model="playsheet.start.hour" ng-options=""></select>
 	<span ng-controller='datepicker' class='date_pick'>
-	<input class="podcast_date" type="text" datepicker-popup="{{format}}"
-           ng-model="episode.date"  is-open="opened"
-           ng-required="true" close-text="Close" ng-hide="true" ng-change="date_change()" />
-	<br/>
-	<h4 ><i>broadcast on </i><b>{{episode.date | date:'medium'}}</b><i> until </i><b>{{episode.end}}</b> <button type="button" ng-click="open($event)">
-        change date
-    </button>
-    </h4></span>
+        <input class="podcast_date" type="text" datepicker-popup="{{format}}"
+               ng-model="playsheet.start"  is-open="opened"
+               ng-required="true" close-text="Close" ng-hide="true" ng-change="date_change()" />
+        <br/>
+        <h4 ><i>broadcast on </i><b>{{playsheet.start | date:'medium'}}</b><i> until </i><b>{{playsheet.end | date:'mediumTime'}}</b>
+            <button type="button" ng-click="open($event)">
+            change date
+            </button>
+            <button ng-click="printArchUrl()">doohickey</button>
+        </h4></span>
 
-        </span>
+    </span>
+
 	<span ng-controller='timepicker'  class='timepicker'>
-	<h4>edit start time</h4>
-	<timepicker ng-model="episode.time" ng-change="start_changed(episode.time)"></timepicker>
+        <h4>edit start time</h4>
+        <timepicker ng-model="playsheet.start" ng-change="start_changed(playsheet.start)"></timepicker>
 	</span>
 
 	<span ng-controller='timepicker' class='timepicker'>
-	<h4>edit duration:</h4>
-	<timepicker ng-model="episode.duration_obj" ng-change="length_changed(episode.duration_obj)" show-meridian="false" ></timepicker>
+        <h4>edit end:</h4>
+        <timepicker ng-model="playsheet.end" ng-change="length_changed(playsheet.end)" show-meridian="false" ></timepicker>
 	</span>
 	<span class="previews">
         <button class='play_start' ng-click="preview_start()" ng-hide="!editing">play beginning</button>

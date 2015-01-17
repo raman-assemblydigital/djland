@@ -1,11 +1,14 @@
 api/playsheet/[playsheet id#]         playsheet data for an already submitted playsheet
-api/playsheets/[show id#]			list of playsheets for given show id #
+api/playsheet/showid/[showid#]			list of playsheets for given show id #
+
+api/podcast/[podcast id#]           podcast info of specified id (title, subtitle, summary)
+api/podcasts/[show id#]             list of podcast info objects as above, all for one show (or channel..)
 
 api/show/[id#]              show info for specified id
 
-api/show/list/active        a list of all active shows
-api/show/list/inactive      a list of all inactive shows
-api/show/list/all           a list of all shows, active or inactive
+api/show/active        a list of all active shows
+api/show/inactive      a list of all inactive shows
+api/show/all           a list of all shows, active or inactive
 
 api/userinfo                user info - including username, type (for permissions)
 

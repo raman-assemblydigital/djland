@@ -1,0 +1,74 @@
+
+<style type="text/css">
+
+        .chartplay{
+                display:table-row;
+                padding-bottom: 13px;
+        }
+
+        .header{
+                background-color:black;
+                color:white;
+        }
+
+        .chartplay span{
+                display:table-cell;
+                padding:5px;
+                margin-right: 10px;
+                border-style: dotted;
+                border-width:0 0 1px 0;
+                z-index: 1;
+                line-height:1em;
+        }
+
+        #chart_wrap{
+                display:table;
+        }
+        .chart_date{
+                white-space:nowrap;
+                padding-left: 15px !important;
+
+        }
+
+        .chart_show{
+                white-space:nowrap;
+                overflow: scroll;
+                max-width:120px;
+
+        }
+
+        .chartplay .box{
+                padding:0;
+                background-repeat:no-repeat;
+                border-width: 0 0 1px 0;
+                z-index: -1;
+
+        }
+</style>
+        <h2>charts</h2>
+
+<div id="chart_wrap">
+        <div class="chartplay header">
+                <span >Artist</span>
+                <span >Song</span>
+                <span >Album</span>
+                <span >Show Name</span>
+                <span>Date</span>
+                <span class="box cancon filled"> &nbsp;</span>
+                <span class="box new filled"> &nbsp;</span>
+                <span>Status</span>
+        </div>
+
+        <div ng-repeat="play in charts" class="chartplay" >
+                <span ng-bind-html="play.artist"></span>
+                <span ng-bind-html="play.song"></span>
+                <span ng-bind-html="play.album"></span>
+                <span class='chart_show' ng-bind-html="play.show_name"></span>
+                <span class="chart_date"> {{play.date}}</span>
+
+                <span class="box cancon" ng-class="{filled: play.is_can==1}" > &nbsp; </span>
+                <span class="box new" ng-class="{filled: play.is_pl==1}" > &nbsp; </span>
+                <span >{{play.status == 1? 'draft' : '';}}</span>
+        </div>
+</div>
+

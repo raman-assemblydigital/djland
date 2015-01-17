@@ -2,6 +2,7 @@
 "id":12345,
 "type":"live",
 "host":"johnathan",
+"start":
 "plays":
 [{"artist":"testartist1","album":"album1","song":"song1","nu":true,"cancon":false,"femcon":false,"instrumental":true,"partial":true,"hit":true,"crtc":30,"language":"eng"},
 {"artist":"artist2","album":"album2","song":"song2","nu":false,"cancon":true,"femcon":false,"instrumental":false,"partial":false,"hit":false,"crtc":20,"language":"eng"},

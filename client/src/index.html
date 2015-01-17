@@ -43,15 +43,44 @@
               </a>
             </li>
             <li ui-sref-active="active">
+              <a href ui-sref="membership">
+                Membership
+              </a>
+            </li>
+            <li ui-sref-active="active">
+              <a href ui-sref="library">
+                Library
+              </a>
+            </li>
+            <li ui-sref-active="active">
+              <a href ui-sref="charts">
+                Charts
+              </a>
+            </li>
+
+            <li class=drop><a href="#">Manage Ads</a>
+              <div class=dropdown_small>
+                <div class=small>
+                  <ul>
+                    <li><a href="adscheduler.php">Ad Scheduler</a></li>
+                    <li><a href="adreport.php">Ad Reporting</a></li>
+                    <li><a href="samAds.php">Sam Ad History</a></li>
+                  </ul>
+                </div>
+              </div>
+            </li>
+
+
+            <li ui-sref-active="active">
               <a href ui-sref="playsheet">
                 new playsheet
               </a>
-            </li>
+            </li><!--
             <li ui-sref-active="active">
               <a href ui-sref="editplaysheet">
                 edit playsheet
               </a>
-            </li>
+            </li>-->
             <li ui-sref-active="active">
               <a href ui-sref="podcast">
                 podcast episodes
@@ -59,13 +88,14 @@
             </li>
             <li ui-sref-active="active">
               <a href ui-sref="show">
-                show info
+                Show
               </a>
             </li>
           </ul>
         </div>
       </div>
     </div>
+
 
     <div class="container" ui-view="main"></div>
 
